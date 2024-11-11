@@ -1,6 +1,6 @@
 package com.capstone1.findable.FAQ.entity;
 
-import com.capstone1.findable.FAQ.dto.faqDTO;
+import com.capstone1.findable.FAQ.dto.FaqDTO;
 import com.capstone1.findable.User.entity.User;
 import jakarta.persistence.*;
 import lombok.*;

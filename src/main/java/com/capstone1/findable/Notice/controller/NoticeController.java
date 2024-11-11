@@ -12,37 +12,37 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/post")
+@RequestMapping("/api/notice")
 public class NoticeController {
 
     private final NoticeService noticeService;
 
-    @PostMapping("/createPost")
-    public ResponseEntity<Void> createPost(@Valid @RequestBody NoticeDTO.CreateNoticeDTO dto){
+    @PostMapping("/createNotice")
+    public ResponseEntity<Void> createNotice(@Valid @RequestBody NoticeDTO.CreateNoticeDTO dto){
         noticeService.createNotice(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("")
-    public ResponseEntity<List<NoticeDTO.ReadNoticeDTO>> findAllPost(){
+    public ResponseEntity<List<NoticeDTO.ReadNoticeDTO>> findAllNotice(){
         List<NoticeDTO.ReadNoticeDTO> posts = noticeService.findAllNotice();
         return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<NoticeDTO.ReadNoticeDTO> findPostById(@PathVariable Long id){
+    public ResponseEntity<NoticeDTO.ReadNoticeDTO> findNoticeById(@PathVariable Long id){
         NoticeDTO.ReadNoticeDTO post = noticeService.findNoticeById(id);
         return ResponseEntity.ok(post);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updatePostInfo(@PathVariable Long id, @RequestBody NoticeDTO.ReadNoticeDTO dto){
+    public ResponseEntity<Void> updateNoticeInfo(@PathVariable Long id, @RequestBody NoticeDTO.ReadNoticeDTO dto){
         noticeService.updateNoticeInfo(id, dto);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePostInfo(@PathVariable Long id){
+    public ResponseEntity<Void> deleteNoticeInfo(@PathVariable Long id){
         noticeService.deleteNoticeInfo(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

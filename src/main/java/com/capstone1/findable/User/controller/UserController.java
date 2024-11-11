@@ -24,31 +24,41 @@ public class UserController {
 
     @PostMapping("/createUser")
     public ResponseEntity<Void> createUser(@Valid @RequestBody UserDTO.CreateUserDTO dto){
-        userService.createUser(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        try {
+            userService.createUser(dto);
+            logger.info("✅ 사용자 생성 성공!");
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            logger.error("⚠️ 사용자 생성 실패 ㅠㅠ");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("")
     public ResponseEntity<List<UserDTO.ReadUserDTO>> findAllUser(){
         List<UserDTO.ReadUserDTO> users = userService.findAllUser();
+        logger.info("✅ 모든 사용자 정보 조회!");
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO.ReadUserDTO> findUserById(@PathVariable Long id){
         UserDTO.ReadUserDTO user = userService.findUserById(id);
+        logger.info("✅ {}번 사용자 정보 조회!", id);
         return ResponseEntity.ok(user);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateUserInfo(@PathVariable Long id, @RequestBody UserDTO.ReadUserDTO dto){
         userService.updateUserInfo(id, dto);
+        logger.info("✅ {}번 사용자 정보 수정!", id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUserInfo(@PathVariable Long id) {
         userService.deleteUserInfo(id);
+        logger.info("✅ {}번 사용자 정보 삭제!", id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

@@ -12,13 +12,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/post")
+@RequestMapping("/api/faq")
 public class FaqController {
 
     private final FaqService faqService;
 
-    @PostMapping("/createPost")
-    public ResponseEntity<Void> createPost(@Valid @RequestBody FaqDTO.CreateFaqDTO dto){
+    @PostMapping("/createFaq")
+    public ResponseEntity<Void> createFaq(@Valid @RequestBody FaqDTO.CreateFaqDTO dto){
         faqService.createFaq(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
