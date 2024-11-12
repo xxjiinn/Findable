@@ -3,6 +3,7 @@ package com.capstone1.findable.User.service;
 import com.capstone1.findable.User.dto.UserDTO;
 import com.capstone1.findable.User.entity.User;
 import com.capstone1.findable.User.repo.UserRepo;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public void createUser (UserDTO.CreateUserDTO dto){
         if (userRepo.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("⚠️ Email 중복!");
@@ -29,6 +31,7 @@ public class UserService {
         userRepo.save(user);
     }
 
+    @Transactional
     public boolean login(String email, String password) {
         User user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("⚠️ User not found"));
@@ -36,6 +39,7 @@ public class UserService {
         return passwordEncoder.matches(password, user.getPassword());
     }
 
+    @Transactional
     public List<UserDTO.ReadUserDTO> findAllUser(){
         return userRepo.findAll()
                 .stream()
@@ -43,11 +47,13 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public UserDTO.ReadUserDTO findUserById(Long id){
         User user =  userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("⚠️ No User found! (while reading user info)"));
         return UserDTO.ReadUserDTO.toDTO(user);
     }
 
+    @Transactional
     public void updateUserInfo(Long id, UserDTO.ReadUserDTO dto){
         User user =  userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("⚠️ No User found! (while updating user info)"));
         if(dto.getName() != null && !dto.getName().isEmpty()){
@@ -60,6 +66,7 @@ public class UserService {
         userRepo.save(user);
     }
 
+    @Transactional
     public void deleteUserInfo(Long id){
         User user = userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("⚠️ No User found! (while deleting user info)"));
         userRepo.delete(user);

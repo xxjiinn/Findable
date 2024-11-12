@@ -19,12 +19,12 @@ public class UserController {
 
     private final UserService userService;
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    // UserController.java
     @PostMapping("/createUser")
     public ResponseEntity<Void> createUser(@Valid @RequestBody UserDTO.CreateUserDTO dto) {
         try {
+            logger.info("🔥 사용자 생성 시도...");
             userService.createUser(dto);
             logger.info("✅ 사용자 생성 성공!");
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -83,7 +83,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateUserInfo(@PathVariable Long id, @RequestBody UserDTO.ReadUserDTO dto) {
+    public ResponseEntity<Void> updateUserInfo(@PathVariable Long id, @Valid @RequestBody UserDTO.ReadUserDTO dto) {
         try {
             userService.updateUserInfo(id, dto);
             logger.info("✅ {}번 사용자 정보 수정!", id);

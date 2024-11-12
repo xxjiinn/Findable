@@ -1,3 +1,5 @@
+const API_BASE_URL = "http://localhost:8080/api/user";
+
 document.getElementById("signupForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -6,7 +8,7 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
     const password = document.getElementById("password").value;
 
     try {
-        const response = await fetch("http://localhost:8080/api/user/createUser", {
+        const response = await fetch(`${API_BASE_URL}/createUser`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name, email, password })
@@ -14,13 +16,16 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
 
         if (response.ok) {
             alert("Signup successful! Redirecting to login page.");
-            // 회원가입 성공 시 로그인 페이지로 이동
             window.location.href = "login.html";
+        } else if (response.status === 400) {
+            alert("Signup failed: Email is already in use.");
+        } else if (response.status === 500) {
+            alert("Server error. Please try again later.");
         } else {
-            alert("Signup failed. Please try again.");
+            alert("An unknown error occurred. Please try again.");
         }
     } catch (error) {
         console.error("Error:", error);
-        alert("An error occurred. Please try again later.");
+        alert("An error occurred. Please check your internet connection and try again.");
     }
 });

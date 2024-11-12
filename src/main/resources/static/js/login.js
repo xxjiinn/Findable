@@ -1,4 +1,4 @@
-// login.js
+const API_BASE_URL = "http://localhost:8080/api/user";
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -6,24 +6,24 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     const password = document.getElementById("password").value;
 
     try {
-        const response = await fetch("http://localhost:8080/api/user/login", {
+        const response = await fetch(`${API_BASE_URL}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })
         });
 
         if (response.ok) {
-            // 로그인 성공 시 home 페이지로 이동
+            alert("Login successful! Redirecting to home page.");
             window.location.href = "home.html";
         } else if (response.status === 401) {
-            alert("Incorrect password. Please try again.");
+            alert("Login failed: Incorrect password.");
         } else if (response.status === 404) {
-            alert("User not found. Please check your email.");
+            alert("Login failed: User not found.");
         } else {
-            alert("An error occurred. Please try again later.");
+            alert("An unknown error occurred. Please try again.");
         }
     } catch (error) {
         console.error("Error:", error);
-        alert("An error occurred. Please try again later.");
+        alert("An error occurred. Please check your internet connection and try again.");
     }
 });
