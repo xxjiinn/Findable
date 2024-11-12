@@ -6,6 +6,7 @@ import com.capstone1.findable.User.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class UserService {
 
     private final UserRepo userRepo;
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
     public void createUser (UserDTO.CreateUserDTO dto){
         if (userRepo.existsByEmail(dto.getEmail())) {
