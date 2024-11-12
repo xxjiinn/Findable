@@ -4,63 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <style>
-        /* 구글 로그인 버튼 스타일 */
-        .google-btn {
-            width: 190px;
-            height: 40px;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-        }
-
-        .google-btn img {
-            width: 20px;
-            margin-right: 10px;
-        }
-
-        .google-btn span {
-            color: #757575;
-            font-size: 14px;
-        }
-
-        .google-btn:hover {
-            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<h1>Login</h1>
+<div class="container">
+    <h2>Login</h2>
+    <form id="loginForm">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
 
-<!-- 로그인 폼 -->
-<form id="login-form" action="/login" method="POST">
-    <label for="email">Email:</label><br>
-    <input type="email" id="email" name="email" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
 
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password" required><br><br>
+        <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+</div>
 
-    <button type="submit">Login</button>
-</form>
-
-<br><br>
-
-<button onclick="location.href='/signup.html'">You didn't register an account? Go to Signup Page!</button>
-
-<br><br>
-
-<!-- Google 로그인 버튼 -->
-<a href="/oauth2/authorization/google" class="google-btn">
-    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
-    <span>Sign in with Google</span>
-</a>
-
-<script src="/js/login.js"></script>  <!-- JavaScript 파일 포함 -->
+<script src="js/login.js"></script>
 </body>
 </html>

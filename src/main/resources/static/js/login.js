@@ -1,31 +1,29 @@
 // login.js
-
-document.getElementById("login-form").addEventListener("submit", async function (event) {
-    event.preventDefault(); // 폼의 기본 제출 동작 방지
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
     try {
-        const response = await fetch("/api/user/login", {
+        const response = await fetch("http://localhost:8080/api/user/login", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ email, password }) // email 필드 전송
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
         });
 
         if (response.ok) {
-            const result = await response.text();
-            alert("로그인 성공");
-            location.href = "/home.html"; // 성공 시 홈 페이지로 이동
+            // 로그인 성공 시 home 페이지로 이동
+            window.location.href = "home.html";
         } else if (response.status === 401) {
-            alert("잘못된 이메일 또는 비밀번호입니다.");
+            alert("Incorrect password. Please try again.");
+        } else if (response.status === 404) {
+            alert("User not found. Please check your email.");
         } else {
-            alert("로그인 중 오류가 발생했습니다.");
+            alert("An error occurred. Please try again later.");
         }
     } catch (error) {
-        console.error("로그인 요청 실패:", error);
-        alert("로그인 요청 중 오류가 발생했습니다.");
+        console.error("Error:", error);
+        alert("An error occurred. Please try again later.");
     }
 });

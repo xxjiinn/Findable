@@ -17,9 +17,22 @@ public class UserService {
 
     private final UserRepo userRepo;
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public void createUser (UserDTO.CreateUserDTO dto){
-        userRepo.save(User.toEntity(dto));
+        if (userRepo.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("⚠️ Email 중복!");
+        }
+        User user = User.toEntity(dto);
+        user.setPassword(passwordEncoder.encode(dto.getPassword())); // 비밀번호 암호화
+        userRepo.save(user);
+    }
+
+    public boolean login(String email, String password) {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("⚠️ User not found"));
+
+        return passwordEncoder.matches(password, user.getPassword());
     }
 
     public List<UserDTO.ReadUserDTO> findAllUser(){

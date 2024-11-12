@@ -21,17 +21,42 @@ public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
+    // UserController.java
     @PostMapping("/createUser")
     public ResponseEntity<Void> createUser(@Valid @RequestBody UserDTO.CreateUserDTO dto) {
         try {
             userService.createUser(dto);
             logger.info("✅ 사용자 생성 성공!");
             return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (IllegalArgumentException e) {
+            logger.warn("⚠️ 중복된 이메일: {}", dto.getEmail());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             logger.error("⚠️ 사용자 생성 실패 ㅠㅠ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<Void> login(@RequestBody UserDTO.LoginDTO dto) {
+        try {
+            if (userService.login(dto.getEmail(), dto.getPassword())) {
+                logger.info("✅ 로그인 성공!");
+                return ResponseEntity.ok().build();
+            } else {
+                logger.warn("⚠️ 로그인 실패: 잘못된 비밀번호");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+        } catch (IllegalArgumentException e) {
+            logger.warn("⚠️ 로그인 실패: 사용자 없음");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            logger.error("⚠️ 로그인 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 
     @GetMapping("")
     public ResponseEntity<List<UserDTO.ReadUserDTO>> findAllUser() {
