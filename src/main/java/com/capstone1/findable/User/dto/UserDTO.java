@@ -2,6 +2,7 @@ package com.capstone1.findable.User.dto;
 
 
 import com.capstone1.findable.User.entity.User;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,8 +12,13 @@ public class UserDTO {
 
     @Getter
     public static class CreateUserDTO {
+        @NotEmpty
         private String name;
+
+        @NotEmpty
         private String email;
+
+        @NotEmpty
         private String password;
     }
 
