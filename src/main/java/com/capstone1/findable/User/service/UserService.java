@@ -22,25 +22,34 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void createUser (UserDTO.CreateUserDTO dto){
+    public void createUser(UserDTO.CreateUserDTO dto) {
         if (userRepo.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("⚠️ Email 중복!");
         }
         User user = User.toEntity(dto);
-        user.setPassword(passwordEncoder.encode(dto.getPassword())); // 비밀번호 암호화
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         userRepo.save(user);
     }
 
-    @Transactional
-    public boolean login(String email, String password) {
-        User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("⚠️ User not found"));
+//    @Transactional
+//    public boolean login(String email, String password) {
+//        User user = userRepo.findByEmail(email)
+//                .orElseThrow(() -> {
+//                    logger.warn("⚠️ 로그인 실패: 사용자 없음 - {}", email);
+//                    return new IllegalArgumentException("User not found");
+//                });
+//
+//        boolean passwordMatches = passwordEncoder.matches(password, user.getPassword());
+//        if (passwordMatches) {
+//            logger.info("✅ 로그인 성공: {}", email);
+//        } else {
+//            logger.warn("⚠️ 로그인 실패: 비밀번호 불일치 - {}", email);
+//        }
+//        return passwordMatches;
+//    }
 
-        return passwordEncoder.matches(password, user.getPassword());
-    }
-
     @Transactional
-    public List<UserDTO.ReadUserDTO> findAllUser(){
+    public List<UserDTO.ReadUserDTO> findAllUser() {
         return userRepo.findAll()
                 .stream()
                 .map(UserDTO.ReadUserDTO::toDTO)
@@ -48,27 +57,29 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO.ReadUserDTO findUserById(Long id){
-        User user =  userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("⚠️ No User found! (while reading user info)"));
+    public UserDTO.ReadUserDTO findUserById(Long id) {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("⚠️ No User found! (while reading user info)"));
         return UserDTO.ReadUserDTO.toDTO(user);
     }
 
     @Transactional
-    public void updateUserInfo(Long id, UserDTO.ReadUserDTO dto){
-        User user =  userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("⚠️ No User found! (while updating user info)"));
-        if(dto.getName() != null && !dto.getName().isEmpty()){
+    public void updateUserInfo(Long id, UserDTO.ReadUserDTO dto) {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("⚠️ No User found! (while updating user info)"));
+        if (dto.getName() != null && !dto.getName().isEmpty()) {
             user.setName(dto.getName());
         }
-        if(dto.getEmail() != null && !dto.getEmail().isEmpty()){
+        if (dto.getEmail() != null && !dto.getEmail().isEmpty()) {
             user.setEmail(dto.getEmail());
         }
-
         userRepo.save(user);
     }
 
     @Transactional
-    public void deleteUserInfo(Long id){
-        User user = userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("⚠️ No User found! (while deleting user info)"));
+    public void deleteUserInfo(Long id) {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("⚠️ No User found! (while deleting user info)"));
         userRepo.delete(user);
     }
 }

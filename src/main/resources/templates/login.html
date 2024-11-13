@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+
 </head>
 <body>
 <div class="container">
     <h2>Login</h2>
-    <form action="/login" method="post">
+    <form action="/api/user/login" method="post">
         <label for="email">Email:</label>
         <input type="text" id="email" name="username" required> <!-- 필드명 수정 -->
 

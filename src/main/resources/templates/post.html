@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시물 페이지</title>
+    <link rel="stylesheet" th:href="@{/css/post.css}">
+</head>
+<body>
+<header>
+    <h1>게시물 페이지</h1>
+    <button onclick="window.location.href='/home'" class="back-button">홈으로 돌아가기</button>
+</header>
+
+<main>
+    <section class="post-form">
+        <h2>새 게시물 작성</h2>
+        <form id="createPostForm">
+            <input type="text" id="title" placeholder="제목" required class="input-title">
+            <textarea id="content" placeholder="내용" required class="input-content"></textarea>
+            <button type="submit" class="submit-button">게시물 생성</button>
+        </form>
+    </section>
+
+    <section class="post-list">
+        <h2>게시물 목록</h2>
+        <div id="posts" class="posts-container"></div>
+    </section>
+</main>
+
+<script src="/js/post.js"></script>
+</body>
+</html>

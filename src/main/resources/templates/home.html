@@ -1,15 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+    <title>홈페이지</title>
+    <link rel="stylesheet" th:href="@{/css/homepage.css}">
+    <script defer src="@{/js/home.js}"></script>
 </head>
 <body>
-<div class="container">
-    <h1>Welcome to the Home Page!</h1>
-    <p>You have successfully logged in.</p>
-</div>
+<header>
+    <h1>Findable에 오신 것을 환영합니다!</h1>
+    <nav>
+        <ul>
+            <li><a href="/home">홈</a></li>
+            <li><a href="/post">게시물</a></li>
+            <li><a href="/notice">공지사항</a></li>
+            <li><a href="/faq">FAQ</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <section class="welcome-message">
+        <p>로그인에 성공하셨습니다. 원하는 콘텐츠를 쉽게 찾고 저장해보세요.</p>
+    </section>
+    <section class="features">
+        <div class="feature">
+            <h2>콘텐츠 저장</h2>
+            <p>Instagram, YouTube, 웹사이트 등에서 유용한 콘텐츠를 쉽게 저장하세요.</p>
+        </div>
+        <div class="feature">
+            <h2>태그 관리</h2>
+            <p>저장한 콘텐츠를 태그와 카테고리로 정리하여 효율적으로 관리하세요.</p>
+        </div>
+        <div class="feature">
+            <h2>리마인더 기능</h2>
+            <p>중요한 콘텐츠를 놓치지 않도록 알림을 설정할 수 있습니다.</p>
+        </div>
+    </section>
+</main>
+<footer>
+    <p>© 2024 Findable. All rights reserved.</p>
+</footer>
 </body>
 </html>
