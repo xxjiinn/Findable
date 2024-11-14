@@ -29,11 +29,11 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
         );
 
-
         http.formLogin(form -> form
                 .loginPage("/login") // 로그인 페이지 URL
-                .loginProcessingUrl("/api/user/login") // 커스텀 로그인 처리 URL
-                .defaultSuccessUrl("/home", true)
+                .loginProcessingUrl("/api/user/login") // 로그인 처리 URL
+                .defaultSuccessUrl("/home", true) // 로그인 성공 시 이동 경로
+                .failureUrl("/login?error=true") // 로그인 실패 시 이동 경로
                 .permitAll()
         );
 

@@ -9,7 +9,6 @@
 body {
     background-color: #f4f5f7;
     color: #333;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -19,9 +18,9 @@ body {
 header {
     background-color: #4a90e2;
     color: white;
-    padding: 15px;
     width: 100%;
     text-align: center;
+    padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     position: fixed;
     top: 0;
@@ -30,29 +29,26 @@ header {
 
 header h1 {
     font-size: 2em;
+    margin-bottom: 5px;
 }
 
-.back-button {
-    background-color: #ffffff;
-    color: #4a90e2;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1em;
-    margin-top: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+header nav a {
+    margin: 0 20px; /* 간격 조정 */
+    color: white;
+    text-decoration: none;
+    font-weight: normal; /* bold 제거 */
+    transition: color 0.3s;
 }
 
-.back-button:hover {
-    background-color: #f0f0f0;
+header nav a:hover {
+    color: #d9e4ff;
 }
 
 /* Main Content Styles */
 main {
     width: 100%;
     max-width: 800px;
-    margin-top: 120px;
+    margin-top: 150px;
     padding: 20px;
 }
 
@@ -127,4 +123,90 @@ main {
     color: #555;
     font-size: 1em;
     line-height: 1.5;
+}
+
+button {
+    margin: 5px;
+    padding: 5px 10px;
+    font-size: 0.9em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #ddd;
+}
+
+button:focus {
+    outline: none;
+}
+
+/* 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+/* 모달 폼 그룹 스타일 */
+.form-group {
+    margin-bottom: 15px;
+}
+
+/* 모달 입력 필드 스타일 */
+.modal-input, .modal-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.modal-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* 모달 닫기 버튼 스타일 */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #333;
+}
+
+/* 모달 제출 버튼 스타일 */
+.modal-submit {
+    background-color: #4a90e2;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.modal-submit:hover {
+    background-color: #3a7bcc;
 }

@@ -9,31 +9,31 @@ import lombok.NoArgsConstructor;
 public class PostDTO {
 
     @Getter
-    public static class CreatePostDTO{
-
+    public static class CreatePostDTO {
         private String title;
         private String content;
-        private Long userId; // 참조관계
+        private Long userId;
+        private String url; // URL 필드 추가
     }
 
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class ReadPostDTO{
+    public static class ReadPostDTO {
         private Long id;
-
         private String title;
         private String content;
-        private Long userId; // 참조 관계
-
+        private Long userId;
+        private String url; // URL 필드 추가
 
         public static ReadPostDTO toDTO(Post post) {
             return ReadPostDTO.builder()
                     .id(post.getId())
                     .title(post.getTitle())
                     .content(post.getContent())
-                    .userId(post.getUser().getId()) // 참조 관계
+                    .userId(post.getUser().getId())
+                    .url(post.getUrl()) // URL 필드 매핑
                     .build();
         }
     }

@@ -31,22 +31,6 @@ public class UserService {
         userRepo.save(user);
     }
 
-//    @Transactional
-//    public boolean login(String email, String password) {
-//        User user = userRepo.findByEmail(email)
-//                .orElseThrow(() -> {
-//                    logger.warn("⚠️ 로그인 실패: 사용자 없음 - {}", email);
-//                    return new IllegalArgumentException("User not found");
-//                });
-//
-//        boolean passwordMatches = passwordEncoder.matches(password, user.getPassword());
-//        if (passwordMatches) {
-//            logger.info("✅ 로그인 성공: {}", email);
-//        } else {
-//            logger.warn("⚠️ 로그인 실패: 비밀번호 불일치 - {}", email);
-//        }
-//        return passwordMatches;
-//    }
 
     @Transactional
     public List<UserDTO.ReadUserDTO> findAllUser() {

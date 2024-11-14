@@ -24,10 +24,13 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private String url;
+
     public static Post toEntity(PostDTO.CreatePostDTO dto, User user) {
         return Post.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
+                .url(dto.getUrl()) // URL 필드 추가
                 .user(user) // 참조관계
                 .build();
     }

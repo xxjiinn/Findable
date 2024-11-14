@@ -20,8 +20,8 @@ public class PostService {
 
     public void createPost(PostDTO.CreatePostDTO dto){
         User user = userRepo.findById(dto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("⚠️ User not found! (while creating post)")); // 참조관계
-        postRepo.save(Post.toEntity(dto, user)); // 참조 관계
+                .orElseThrow(() -> new IllegalArgumentException("⚠️ User not found! (while creating post)"));
+        postRepo.save(Post.toEntity(dto, user));
     }
 
     public List<PostDTO.ReadPostDTO> findAllPost(){
@@ -44,6 +44,9 @@ public class PostService {
         if(dto.getContent() != null && !dto.getContent().isEmpty()){
             post.setContent(dto.getContent());
         }
+        if(dto.getUrl() != null && !dto.getUrl().isEmpty()){
+            post.setUrl(dto.getUrl());
+        }
 
         postRepo.save(post);
     }
@@ -52,5 +55,4 @@ public class PostService {
         Post post = postRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("⚠️ No Post found! (while deleting post"));
         postRepo.delete(post);
     }
-
 }
