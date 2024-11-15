@@ -97,6 +97,54 @@ async function deletePost(id) {
     }
 }
 
+// 검색 요청 함수
+async function searchPosts(query) {
+    const response = await fetch(`/api/post/search?query=${encodeURIComponent(query)}`);
+    const posts = await response.json();
+
+    const postsContainer = document.getElementById('posts');
+    postsContainer.innerHTML = ''; // 기존 게시물 목록 초기화
+
+    posts.forEach(post => {
+        const postElement = document.createElement('div');
+        postElement.classList.add('post-item');
+        postElement.innerHTML = `
+            <h3>${post.title}</h3>
+            <p>${post.content}</p>
+            <p><a href="${post.url}" target="_blank">${post.url}</a></p>
+        `;
+        postsContainer.appendChild(postElement);
+    });
+}
+
+// 디바운스 함수
+function debounce(func, delay) {
+    let timeoutId;
+    return function(...args) {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+}
+
+// 실시간 검색 함수
+function handleSearchInput() {
+    const query = document.getElementById('searchInput').value;
+    if (query) {
+        searchPosts(query);
+    } else {
+        loadPosts(); // 검색어가 없으면 전체 게시물을 불러오기
+        // document.getElementById('posts').innerHTML = ''; // 검색어가 없으면 게시물 목록 초기화
+    }
+}
+
+// 검색창에 입력 이벤트 리스너 추가 (디바운스 적용)
+document.getElementById('searchInput').addEventListener('keyup', debounce(handleSearchInput, 100));
+
+
 // 폼 제출 시 이벤트에 url을 추가
 document.getElementById('createPostForm').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -105,6 +153,8 @@ document.getElementById('createPostForm').addEventListener('submit', function(ev
     const url = document.getElementById('url').value; // url 가져오기
     createPost(title, content, url);
 });
+
+
 
 // 페이지 로드 시 게시물 목록 불러오기
 window.addEventListener('load', loadPosts);

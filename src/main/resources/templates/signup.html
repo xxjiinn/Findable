@@ -4,22 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/signup.css}">
 </head>
 <body>
 <div class="container">
-    <h2>Sign Up</h2>
+    <h2>Join Us</h2>
     <form id="signupForm">
-        <label for="name">Name:</label>
+        <label for="name">Name</label>
         <input type="text" id="name" name="name" required>
 
-        <label for="email">Email:</label>
+        <label for="email">Email</label>
         <input type="email" id="email" name="email" required>
 
-        <label for="password">Password:</label>
+        <label for="password">Password</label>
         <input type="password" id="password" name="password" required>
 
-        <button type="submit">Sign Up</button>
+        <button type="submit">Create Account</button>
     </form>
     <p>Already have an account? <a th:href="@{/login}">Log in here</a></p>
 </div>

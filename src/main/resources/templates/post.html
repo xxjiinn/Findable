@@ -18,6 +18,10 @@
 </header>
 
 <main>
+    <section class="search-form">
+        <input type="text" id="searchInput" placeholder="🔍 검색어를 입력하세요" class="input-search">
+        <button onclick="searchPosts()" class="search-button">검색</button>
+    </section>
     <section class="post-form">
         <h2>새 게시물 작성</h2>
         <form id="createPostForm">
@@ -32,6 +36,8 @@
         <h2>게시물 목록</h2>
         <div id="posts" class="posts-container"></div>
     </section>
+
+
 </main>
 
 <!-- 수정 모달 -->

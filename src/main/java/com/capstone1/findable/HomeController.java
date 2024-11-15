@@ -6,6 +6,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
 
+    @GetMapping("/")
+    public String redirectToHome() {
+        return "redirect:/home";
+    }
+
     @GetMapping("/login")
     public String login() {
         return "login";  // login.html 파일을 Thymeleaf를 통해 렌더링

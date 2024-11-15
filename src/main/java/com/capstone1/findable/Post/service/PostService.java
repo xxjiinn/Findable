@@ -55,4 +55,11 @@ public class PostService {
         Post post = postRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("⚠️ No Post found! (while deleting post"));
         postRepo.delete(post);
     }
+
+    public List<PostDTO.ReadPostDTO> searchPosts(String query) {
+        return postRepo.findByTitleContainingOrContentContaining(query, query)
+                .stream()
+                .map(PostDTO.ReadPostDTO::toDTO)
+                .collect(Collectors.toList());
+    }
 }
