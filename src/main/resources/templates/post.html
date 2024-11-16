@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>게시물 페이지</title>
+    <title>게시물 관리</title>
     <link rel="stylesheet" href="/css/post.css">
 </head>
 <body>
 <header>
-    <h1>게시물 페이지</h1>
+    <h1>게시물 관리</h1>
     <nav>
         <a href="/home">홈</a>
         <a href="/post">게시물</a>
@@ -18,53 +18,33 @@
 </header>
 
 <main>
-    <section class="search-form">
-        <input type="text" id="searchInput" placeholder="🔍 검색어를 입력하세요" class="input-search">
-        <button onclick="searchPosts()" class="search-button">검색</button>
+    <section class="main-options">
+        <!-- 게시물 작성 -->
+        <div class="option-card">
+            <a href="/create.html">
+                <img src="/images/create-icon.png" alt="게시물 작성" />
+                <h2>게시물 작성</h2>
+                <p>새로운 게시물을 작성합니다.</p>
+            </a>
+        </div>
+        <!-- 게시물 목록 -->
+        <div class="option-card">
+            <a href="/list_post.html">
+                <img src="/images/list-icon.png" alt="게시물 목록" />
+                <h2>게시물 목록</h2>
+                <p>작성된 게시물 목록을 확인합니다.</p>
+            </a>
+        </div>
+        <!-- 게시물 검색 -->
+        <div class="option-card">
+            <a href="/search_post.html">
+                <img src="/images/search-icon.png" alt="게시물 검색" />
+                <h2>게시물 검색</h2>
+                <p>키워드를 통해 게시물을 검색합니다.</p>
+            </a>
+        </div>
     </section>
-    <section class="post-form">
-        <h2>새 게시물 작성</h2>
-        <form id="createPostForm">
-            <input type="text" id="title" placeholder="제목" required class="input-title">
-            <textarea id="content" placeholder="내용" required class="input-content"></textarea>
-            <input type="text" id="url" placeholder="URL" class="input-url">
-            <button type="submit" class="submit-button">게시물 생성</button>
-        </form>
-    </section>
-
-    <section class="post-list">
-        <h2>게시물 목록</h2>
-        <div id="posts" class="posts-container"></div>
-    </section>
-
-
 </main>
-
-<!-- 수정 모달 -->
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h2>게시물 수정</h2>
-        <form id="editPostForm">
-            <div class="form-group">
-                <label for="editTitle">제목:</label>
-                <input type="text" id="editTitle" class="modal-input" required>
-            </div>
-
-            <div class="form-group">
-                <label for="editContent">내용:</label>
-                <textarea id="editContent" class="modal-textarea" required></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="editUrl">URL:</label>
-                <input type="text" id="editUrl" class="modal-input">
-            </div>
-
-            <button type="button" onclick="submitEditPost()" class="modal-submit">수정 완료</button>
-        </form>
-    </div>
-</div>
 
 <script src="/js/post.js"></script>
 </body>
