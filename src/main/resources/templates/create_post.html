@@ -8,24 +8,49 @@
 </head>
 <body>
 <header>
-    <h1>게시물 작성</h1>
+    <h1>게시물 관리</h1>
     <nav>
-        <a href="/post">뒤로가기</a>
+        <ul>
+            <li><a href="/home">홈</a></li>
+            <li><a href="/post">게시물</a></li>
+            <li><a href="/notice">공지사항</a></li>
+            <li><a href="/faq">FAQ</a></li>
+        </ul>
     </nav>
 </header>
 
 <main>
-    <h2>새 게시물 작성</h2>
     <form id="createPostForm">
-        <input type="text" id="title" placeholder="제목" required>
-        <textarea id="content" placeholder="내용" required></textarea>
-        <input type="text" id="url" placeholder="URL">
-        <button type="submit">게시물 생성</button>
+        <label for="title">제목</label>
+        <input type="text" id="title" name="title" placeholder="게시물 제목" required>
+        <label for="content">내용</label>
+        <textarea id="content" name="content" placeholder="게시물 내용" required></textarea>
+        <label for="url">URL</label>
+        <input type="text" id="url" name="url" placeholder="관련 URL">
+        <button type="submit">작성하기</button>
     </form>
 </main>
 
 <script>
-    // 게시물 생성 로직 추가
+    document.getElementById('createPostForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('title').value;
+        const content = document.getElementById('content').value;
+        const url = document.getElementById('url').value;
+
+        const response = await fetch('/api/post/createPost', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, content, url, userId: 1 })
+        });
+
+        if (response.ok) {
+            alert('게시물이 성공적으로 생성되었습니다.');
+            window.location.href = '/post';
+        } else {
+            alert('게시물 생성 중 오류가 발생했습니다.');
+        }
+    });
 </script>
 </body>
 </html>
