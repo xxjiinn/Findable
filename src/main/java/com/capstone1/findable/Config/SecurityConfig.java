@@ -27,7 +27,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/signup", "/css/**", "/js/**", "/static/**", "/api/user/createUser", "/post").permitAll()
                 .anyRequest().authenticated()
-        ); //
+        );
 
         http.formLogin(form -> form
                 .loginPage("/login") // 로그인 페이지 URL
