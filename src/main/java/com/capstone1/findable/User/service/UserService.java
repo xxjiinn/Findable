@@ -29,7 +29,7 @@ public class UserService {
         User user = User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
-                .password(encodedPassword)
+                .password(encodedPassword) //
                 .build();
 
         // DB에 저장
