@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -19,21 +20,29 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter; // 추가
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/signup", "/css/**", "/js/**", "/static/**", "/api/user/createUser", "/post").permitAll()
+                .requestMatchers(
+                        "/login",
+                        "/signup"
+                        , "/css/**",
+                        "/js/**",
+                        "/static/**",
+                        "/api/user/createUser")
+                .permitAll()
                 .anyRequest().authenticated()
         );
 
         http.formLogin(form -> form
-                .loginPage("/login") // 로그인 페이지 URL
-                .loginProcessingUrl("/api/user/login") // 로그인 처리 URL
-                .defaultSuccessUrl("/home", true) // 로그인 성공 시 이동 경로
-                .failureUrl("/login?error=true") // 로그인 실패 시 이동 경로
+                .loginPage("/login")
+                .loginProcessingUrl("/api/user/login")
+                .defaultSuccessUrl("/home", true)
+                .failureUrl("/login?error=true")
                 .permitAll()
         );
 
@@ -42,6 +51,9 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/login")
                 .permitAll()
         );
+
+        // JwtAuthenticationFilter 등록
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
