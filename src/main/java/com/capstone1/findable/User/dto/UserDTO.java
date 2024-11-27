@@ -2,49 +2,63 @@ package com.capstone1.findable.User.dto;
 
 
 import com.capstone1.findable.User.entity.User;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 public class UserDTO {
 
     @Getter
+    @Setter
+    @Builder
     public static class CreateUserDTO {
-        @NotEmpty
         private String name;
-
-        @NotEmpty
+        private String password;
         private String email;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+    }
 
-        @NotEmpty
+    // 로그인 DTO
+    @Getter
+    @Setter
+    public static class LoginUserDTO {
+        private String email;
         private String password;
     }
 
     @Getter
-    public static class LoginDTO {
-        private String email;
-        private String password;
-    }
-
-    @Getter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Builder
     public static class ReadUserDTO {
         private Long id;
-
+        @NotBlank(message = "Name is mandatory")
+        @Size(max = 20, message = "20자 제한")
         private String name;
-        private String email;
+
+        @NotBlank(message = "Password is mandatory")
+        @Size(max = 20, message = "20자 제한")
         private String password;
+
+        @NotBlank(message = "Email is mandatory")
+        @Size(max = 30, message = "30자 제한")
+        private String email;
+
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
 
         public static ReadUserDTO toDTO(User user) {
             return ReadUserDTO.builder()
                     .id(user.getId())
-                    .name(user.getName())
-                    .email(user.getEmail())
+                    .name(user.getUsername())
                     .password(user.getPassword())
+                    .email(user.getEmail())
+                    .createdAt(user.getCreatedAt())
+                    .updatedAt(user.getUpdatedAt())
                     .build();
         }
     }

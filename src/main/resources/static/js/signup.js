@@ -1,31 +1,28 @@
-const API_BASE_URL = "http://localhost:8080/api/user";
+document.getElementById('signup-form').addEventListener('submit', function(event) {
+    event.preventDefault();
 
-document.getElementById("signupForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    console.log('🟢 Sending sign-up request: ', { name, email, password });
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/createUser`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, password })
-        });
-
-        if (response.ok) {
-            alert("Signup successful! Redirecting to login page.");
-            window.location.href = "login.html";
-        } else if (response.status === 400) {
-            alert("Signup failed: Email is already in use.");
-        } else if (response.status === 500) {
-            alert("Server error. Please try again later.");
-        } else {
-            alert("An unknown error occurred. Please try again.");
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("An error occurred. Please check your internet connection and try again.");
-    }
+    // 회원가입 요청을 서버로 보냄
+    fetch('/api/user/signup', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, password }),
+    })
+        .then(response => {
+            console.log('Server response: ', response.status);
+            if (response.status === 201) {
+                alert('User registered successfully');
+                window.location.href = '/login.html';  // 회원가입 후 로그인 페이지로 이동
+            } else {
+                alert('Failed to sign up');
+            }
+        })
+        .catch(error => console.error('❌ Error signing up: ', error));
 });

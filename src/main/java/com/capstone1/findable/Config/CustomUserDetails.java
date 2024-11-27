@@ -1,12 +1,13 @@
-package com.capstone1.findable.User.service;
+package com.capstone1.findable.Config;
 
 import com.capstone1.findable.User.entity.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
 
+@Getter
 public class CustomUserDetails implements UserDetails {
 
     private final User user;
@@ -15,10 +16,17 @@ public class CustomUserDetails implements UserDetails {
         this.user = user;
     }
 
+    public Long getId() {
+        return user.getId();  // User 엔티티의 ID 반환
+    }
+
+    public boolean isRegistered() {
+        return user.isRegistered();  // User 엔티티에 등록 여부를 나타내는 필드가 있어야 함
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // 사용자의 권한을 반환하는 메서드입니다. 필요에 따라 설정하세요.
-        return Collections.emptyList(); // 예제에서는 빈 리스트 반환
+        return null; // 권한은 여기서 처리할 수 있음.
     }
 
     @Override
@@ -28,26 +36,30 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getEmail(); // User 엔티티에서 이메일을 username으로 사용
+        return user.getUsername();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // 계정이 만료되지 않음을 반환
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // 계정이 잠기지 않음을 반환
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // 자격 증명이 만료되지 않음을 반환
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return true; // 계정이 활성화되었음을 반환
+        return true;
+    }
+
+    public String getEmail() {
+        return user.getEmail(); // User 엔티티의 이메일 반환
     }
 }

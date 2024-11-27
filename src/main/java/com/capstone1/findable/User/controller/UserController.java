@@ -1,5 +1,6 @@
 package com.capstone1.findable.User.controller;
 
+import com.capstone1.findable.Config.CustomUserDetails;
 import com.capstone1.findable.User.dto.UserDTO;
 import com.capstone1.findable.User.service.UserService;
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,72 +18,84 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
 public class UserController {
-
     private final UserService userService;
-
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @PostMapping("/createUser")
+    // 회원가입 엔드포인트
+    @PostMapping("/signup")
     public ResponseEntity<Void> createUser(@Valid @RequestBody UserDTO.CreateUserDTO dto) {
+        logger.info("➡️ User sign-up attempt with name: {}, email: {}", dto.getName(), dto.getEmail());
         try {
-            logger.info("🔥 사용자 생성 시도...");
             userService.createUser(dto);
-            logger.info("✅ 사용자 생성 성공!");
+            logger.info("✅ User created successfully with email: {}", dto.getEmail());
             return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (IllegalArgumentException e) {
-            logger.warn("⚠️ 중복된 이메일: {}", dto.getEmail());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
-            logger.error("⚠️ 사용자 생성 실패 ㅠㅠ", e);
+            logger.error("⚠️ User creation failed for email: {}", dto.getEmail(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    //
+
+    // 로그인 엔드포인트
+    @PostMapping("/login")
+    public ResponseEntity<Object> loginUser(@RequestBody UserDTO.LoginUserDTO loginDTO) {
+        logger.info("➡️ Login attempt with email: {}", loginDTO.getEmail());
+        try {
+            String token = userService.loginUser(loginDTO);
+            logger.info("✅ Login successful for email: {}", loginDTO.getEmail());
+            return ResponseEntity.ok(token); // JWT 토큰 반환
+        } catch (IllegalArgumentException e) {
+            logger.error("⚠️ Login failed for email: {}", loginDTO.getEmail());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid email or password"); // 401 Unauthorized
+        }
+    }
+
+    // 현재 로그인된 사용자 정보 가져오기
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO.ReadUserDTO> getCurrentUser(Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return ResponseEntity.ok(UserDTO.ReadUserDTO.builder()
+                .id(userDetails.getId())
+                .name(userDetails.getUsername())
+                .email(userDetails.getEmail())
+                .build());
+    }
+
+    // 모든 사용자 조회
     @GetMapping("")
     public ResponseEntity<List<UserDTO.ReadUserDTO>> findAllUser() {
-        try {
-            List<UserDTO.ReadUserDTO> users = userService.findAllUser();
-            logger.info("✅ 모든 사용자 정보 조회!");
-            return ResponseEntity.ok(users);
-        } catch (Exception e) {
-            logger.error("⚠️ 사용자 정보 조회 실패", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        logger.info("➡️ Fetching all users");
+        List<UserDTO.ReadUserDTO> users = userService.findAllUser();
+        logger.info("✅ Fetched {} users", users.size());
+        return ResponseEntity.ok(users);
     }
 
+    // ID로 사용자 조회
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO.ReadUserDTO> findUserById(@PathVariable Long id) {
-        try {
-            UserDTO.ReadUserDTO user = userService.findUserById(id);
-            logger.info("✅ {}번 사용자 정보 조회!", id);
-            return ResponseEntity.ok(user);
-        } catch (Exception e) {
-            logger.error("⚠️ {}번 사용자 정보 조회 실패", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        logger.info("➡️ Fetching user with id: {}", id);
+        UserDTO.ReadUserDTO user = userService.findUserById(id);
+        logger.info("✅ Fetched user with id: {}", id);
+        return ResponseEntity.ok(user); // 200 OK // // Security 공부 중....
     }
 
+    // 사용자 정보 업데이트 /
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateUserInfo(@PathVariable Long id, @Valid @RequestBody UserDTO.ReadUserDTO dto) {
-        try {
-            userService.updateUserInfo(id, dto);
-            logger.info("✅ {}번 사용자 정보 수정!", id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (Exception e) {
-            logger.error("⚠️ {}번 사용자 정보 수정 실패", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Void> updateUser(@PathVariable Long id, @Valid @RequestBody UserDTO.ReadUserDTO dto) {
+        logger.info("➡️ Updating user with id: {}", id);
+        userService.updateUserInfo(id, dto);
+        logger.info("✅ Updated user with id: {}", id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    // 사용자 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserInfo(@PathVariable Long id) {
-        try {
-            userService.deleteUserInfo(id);
-            logger.info("✅ {}번 사용자 정보 삭제!", id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (Exception e) {
-            logger.error("⚠️ {}번 사용자 정보 삭제 실패", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        logger.info("➡️ Deleting user with id: {}", id);
+        userService.deleteUser(id);
+        logger.info("✅ Deleted user with id: {}", id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

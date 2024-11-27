@@ -1,167 +1,22 @@
-/* Reset & Global Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
-}
-
 body {
-    background: linear-gradient(135deg, #f0f4f8, #ffffff); /* 부드러운 밝은 색상 */
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    padding: 0;
+}
+
+h1, h2 {
     color: #333;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
-/* Header Styles */
-header {
-    width: 100%;
-    background-color: #4caf50; /* 초록 계열 메인 색상 */
-    color: white;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+ul {
+    list-style-type: none;
+    padding: 0;
 }
 
-header h1 {
-    font-size: 2.2rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-nav ul {
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-    gap: 20px;
-}
-
-nav ul li a {
-    color: white;
-    text-decoration: none;
-    padding: 8px 20px;
-    font-size: 1rem;
-    border-radius: 8px;
-    transition: background-color 0.3s, transform 0.2s;
-}
-
-nav ul li a:hover {
-    background-color: #43a047; /* 약간 어두운 초록 */
-    transform: translateY(-2px);
-}
-
-/* Container Styles */
-.container {
-    width: 400px;
-    padding: 30px;
-    background: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin-top: 50px;
-    text-align: center;
-}
-
-h2 {
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-    color: #43a047;
-    font-weight: bold;
-}
-
-label {
-    display: block;
-    text-align: left;
-    margin-bottom: 10px;
-    font-size: 1rem;
-    color: #555;
-}
-
-input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 20px;
+li {
+    margin: 5px 0;
+    padding: 10px;
+    background-color: #f4f4f4;
     border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-input:focus {
-    border-color: #43a047;
-    box-shadow: 0 0 5px rgba(67, 160, 71, 0.5);
-    outline: none;
-}
-
-button {
-    width: 100%;
-    padding: 12px;
-    font-size: 1.1rem;
-    background: linear-gradient(135deg, #4caf50, #43a047);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-button:hover {
-    transform: scale(1.03);
-    box-shadow: 0 8px 15px rgba(67, 160, 71, 0.3);
-}
-
-a {
-    color: #4caf50;
-    font-weight: bold;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* Footer Styles */
-footer {
-    margin-top: 50px;
-    background-color: #4caf50;
-    color: white;
-    padding: 15px 0;
-    width: 100%;
-    text-align: center;
-    font-size: 0.9rem;
-    letter-spacing: 0.5px;
-}
-
-footer p {
-    color: #e8f5e9; /* 연한 초록 */
-}
-
-.feature {
-    background: linear-gradient(135deg, #e8f5e9, #ffffff); /* 부드러운 초록과 흰색 */
-    border-radius: 12px;
-    padding: 20px;
-    width: 30%;
-    min-width: 250px;
-    text-align: center;
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.feature:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-}
-
-.feature h2 {
-    font-size: 1.6rem;
-    color: #43a047;
-    margin-bottom: 10px;
-}
-
-.feature p {
-    font-size: 1rem;
-    color: #555;
+    border-radius: 5px;
 }
