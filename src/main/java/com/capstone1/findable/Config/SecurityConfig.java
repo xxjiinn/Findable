@@ -1,7 +1,7 @@
 package com.capstone1.findable.Config;
 
 import com.capstone1.findable.jwt.JwtAuthenticationFilter;
-import com.capstone1.findable.oauth.PrincipalOauth2UserService;
+import com.capstone1.findable.oauth.service.PrincipalOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -32,24 +32,33 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/user/signup", "/api/user/login").permitAll() // 회원가입, 로그인 REST API 허용
-                        .requestMatchers("/signup.html", "/login.html").permitAll() // HTML 페이지 접근 허용
-                        .anyRequest().authenticated() // 그 외 요청은 인증 필요
+                        .requestMatchers("/api/user/signup", "/api/user/login", "/signup.html", "/login.html", "/css/**", "/js/**").permitAll() // 회원가입, 로그인, 정적 리소스 허용
+                        .requestMatchers("/home.html").authenticated() // home.html은 인증된 사용자만 허용
+                        .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )
-                .formLogin(form -> form
-                        .loginPage("/login.html") // 로그인 페이지 설정
-                        .loginProcessingUrl("/login") // Spring Security 기본 로그인 처리 URL
-                        .defaultSuccessUrl("/home.html", true) // 로그인 성공 시 이동 경로
-                        .permitAll()
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/login.html"); // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
+                        })
                 )
-                .oauth2Login(oauth -> oauth
-                        .loginPage("/login.html") // OAuth2 로그인 페이지
-                        .userInfoEndpoint(userInfo -> userInfo.userService(principalOauth2UserService))
-                        .defaultSuccessUrl("/home.html", true) // OAuth 로그인 성공 시 이동 경로
-                );
+
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안 함
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 인증 필터 추가
+//                .formLogin(form -> form
+//                        .loginPage("/login.html") // 로그인 페이지 설정
+//                        .loginProcessingUrl("/login") // Spring Security 기본 로그인 처리 URL
+//                        .defaultSuccessUrl("/home.html", true) // 로그인 성공 시 이동 경로
+//                        .permitAll()
+//                )
+//                .oauth2Login(oauth -> oauth
+//                        .loginPage("/login.html") // OAuth2 로그인 페이지
+//                        .userInfoEndpoint(userInfo -> userInfo.userService(principalOauth2UserService))
+//                        .defaultSuccessUrl("/home.html", true) // OAuth 로그인 성공 시 이동 경로
+//                );
+
 
         // JWT 필터 추가
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+//        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -1,11 +1,11 @@
 document.getElementById('signup-form').addEventListener('submit', function(event) {
-    event.preventDefault();
+    event.preventDefault(); // 기본 폼 제출 동작 방지
 
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    console.log('🟢 Sending sign-up request: ', { name, email, password });
+    console.log('🟢 Sending JSON:', { name, email, password });
 
     // 회원가입 요청을 서버로 보냄
     fetch('/api/user/signup', {
