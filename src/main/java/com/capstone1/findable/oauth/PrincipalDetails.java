@@ -1,4 +1,4 @@
-package com.capstone1.findable.oauth.service;
+package com.capstone1.findable.oauth;
 
 import com.capstone1.findable.User.entity.User;
 import lombok.Builder;

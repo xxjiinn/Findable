@@ -19,8 +19,8 @@ public class RefreshTokenCleanupScheduler {
     // 매일 새벽 2시에 만료된 Refresh Token 삭제
     @Scheduled(cron = "0 0 2 * * ?")
     public void cleanupExpiredTokens() {
-        logger.info("🔄Running scheduled cleanup for expired Refresh Tokens.");
+        logger.info("Running scheduled cleanup for expired Refresh Tokens.");
         int deletedCount = refreshTokenRepo.deleteByExpiryDateBefore(LocalDateTime.now());
-        logger.info("✅Cleanup completed. Deleted {} expired tokens.", deletedCount);
+        logger.info("Cleanup completed. Deleted {} expired tokens.", deletedCount);
     }
 }

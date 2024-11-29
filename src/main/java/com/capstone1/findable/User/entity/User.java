@@ -1,5 +1,7 @@
 package com.capstone1.findable.User.entity;
 
+import com.capstone1.findable.FAQ.entity.FAQ;
+import com.capstone1.findable.Notice.entity.Notice;
 import com.capstone1.findable.Post.entity.Post;
 import com.capstone1.findable.User.dto.UserDTO;
 import jakarta.persistence.*;
@@ -10,7 +12,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Entity
 @Getter
@@ -48,13 +49,13 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Post> posts = new ArrayList<>();
 
-//    @Builder.Default
-//    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    private List<Notice> notices = new ArrayList<>();
-//
-//    @Builder.Default
-//    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    private List<FAQ> faqs = new ArrayList<>();
+    @Builder.Default
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Notice> notices = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<FAQ> faqs = new ArrayList<>();
 
     public static User toEntity(UserDTO.CreateUserDTO dto) {
         return User.builder()

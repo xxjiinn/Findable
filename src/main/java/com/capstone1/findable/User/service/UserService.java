@@ -12,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,18 +24,14 @@ public class UserService {
 
     // 회원 생성
     public void createUser(UserDTO.CreateUserDTO dto) {
-        logger.info("➡️Creating new user with email: {}", dto.getEmail());
-
-        if (userRepo.findByEmail(dto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email already exists");
-        }
+        logger.info("☑️Creating new user with email: {}", dto.getEmail());
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword()); // 비밀번호 암호화
         userRepo.save(User.builder()
                 .username(dto.getName())
                 .password(encodedPassword)
                 .email(dto.getEmail())
-                .role(Role.ROLE_USER) // 일반 사용자는 USER 권한 부여
+                .role(Role.ROLE_USER) // 일반 사용자는 USER 권한 부여 ...// .. JWT 공부
                 .build());
 
         logger.info("✅User created successfully with email: {}", dto.getEmail());
@@ -57,22 +52,15 @@ public class UserService {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        // Access Token 및 Refresh Token 생성
-        String accessToken = jwtTokenProvider.generateAccessToken(user.getUsername());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUsername());
-
-        logger.info("🎟️ Access Token: {}", accessToken);
-        logger.info("🎫 Refresh Token: {}", refreshToken);
-
         // 로그인 성공 시 JWT 생성
-        // String token = jwtTokenProvider.generateAccessToken(user.getUsername());
+        String token = jwtTokenProvider.generateAccessToken(user.getUsername());  // 실제 JWT 토큰 생성 로직 필요함.
         logger.info("✅Login successful for email: {}", loginDTO.getEmail());
-        return Map.of("accessToken", accessToken, "refreshToken", refreshToken).toString();
+        return token;
     }
 
     // 모든 유저 조회
     public List<UserDTO.ReadUserDTO> findAllUser() {
-        logger.debug("➡️️Fetching all users");
+        logger.debug("☑️Fetching all users");
 
         List<UserDTO.ReadUserDTO> users = userRepo.findAll()
                 .stream()
@@ -85,7 +73,7 @@ public class UserService {
 
     // ID로 유저 조회
     public UserDTO.ReadUserDTO findUserById(Long id) {
-        logger.debug("➡️Fetching user by id: {}", id);
+        logger.debug("☑️Fetching user by id: {}", id);
 
         User user = userRepo.findById(id)
                 .orElseThrow(() -> {
@@ -108,11 +96,15 @@ public class UserService {
                 });
 
         if (dto.getName() != null && !dto.getName().isEmpty()) {
-            logger.debug("➡️Updating user name to: {}", dto.getName());
+            logger.debug("☑️Updating user name to: {}", dto.getName());
             user.setUsername(dto.getName());
         }
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            logger.debug("☑️Updating user password.");
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
         if (dto.getEmail() != null && !dto.getEmail().isEmpty()) {
-            logger.debug("➡️️Updating user email to: {}", dto.getEmail());
+            logger.debug("☑️Updating user email to: {}", dto.getEmail());
             user.setEmail(dto.getEmail());
         }
 
@@ -122,7 +114,7 @@ public class UserService {
 
     // 유저 삭제
     public void deleteUser(Long id) {
-        logger.info("️➡️Deleting user with id: {}", id);
+        logger.info("☑️Deleting user with id: {}", id);
 
         User user = userRepo.findById(id)
                 .orElseThrow(() -> {

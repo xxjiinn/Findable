@@ -1,9 +1,7 @@
 package com.capstone1.findable.User.dto;
 
-
 import com.capstone1.findable.User.entity.User;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 

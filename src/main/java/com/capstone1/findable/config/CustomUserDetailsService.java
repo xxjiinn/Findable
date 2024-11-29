@@ -1,15 +1,12 @@
-package com.capstone1.findable.Config;
+package com.capstone1.findable.config;
 
 import com.capstone1.findable.User.entity.User;
 import com.capstone1.findable.User.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -22,12 +19,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepo.findByUsername(username);
+
         if (user == null) {
-            System.out.println("⚠️ User not found in DB: " + username);
-            throw new UsernameNotFoundException("⚠️ User not found: " + username);
+            throw new UsernameNotFoundException("User not found with username: " + username);
         }
-        System.out.println("✅ User found: " + user.getUsername());
+
         return new CustomUserDetails(user);  // CustomUserDetails 객체 반환
     }
-
 }

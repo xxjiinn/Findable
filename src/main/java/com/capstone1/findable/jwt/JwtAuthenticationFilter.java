@@ -29,9 +29,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 JwtTokenProvider.setAuthentication(userDetails);
             } else {
-                logger.warn("⚠️Access Token is invalid or expired.");
+                logger.warn("Access Token is invalid or expired.");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("{\"error\":\"Access Token 기간 만료됨. 다시 로그인 하세요!\"}");
+                response.getWriter().write("{\"error\":\"Access Token has expired. Please log out and log in again.\"}");
                 return; // 요청 처리 중단
             }
         }

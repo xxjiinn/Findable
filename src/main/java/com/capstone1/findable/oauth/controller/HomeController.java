@@ -1,6 +1,6 @@
 package com.capstone1.findable.oauth.controller;
 
-import com.capstone1.findable.oauth.service.PrincipalDetails;
+import com.capstone1.findable.oauth.PrincipalDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package com.capstone1.findable.Config;
+package com.capstone1.findable.config;
 
 import com.capstone1.findable.User.entity.User;
 import lombok.Getter;

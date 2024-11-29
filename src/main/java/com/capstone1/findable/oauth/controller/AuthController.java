@@ -35,18 +35,18 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestBody RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
-        logger.info("➡️Received Refresh Token: {}", refreshToken);
+        logger.info("Received Refresh Token: {}", refreshToken);
 
         // Step 1: Refresh Token의 블랙리스트 확인
         if (jwtTokenProvider.isTokenBlacklisted(refreshToken)) {
-            logger.warn("⚠️Refresh Token is blacklisted.");
+            logger.warn("Refresh Token is blacklisted.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Refresh Token is blacklisted. Please log in again."));
         } ////
 
         // Step 2: 데이터베이스에서 Refresh Token 확인
         Optional<RefreshToken> refreshTokenEntity = refreshTokenRepo.findByToken(refreshToken);
         if (refreshTokenEntity.isEmpty()) {
-            logger.warn("⛔️Refresh Token not found in the database.");
+            logger.warn("Refresh Token not found in the database.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Refresh Token not found. Please log in again."));
         }
 
@@ -54,14 +54,14 @@ public class AuthController {
 
         // Step 3: 데이터베이스의 만료 시간 확인
         if (storedToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            logger.warn("🚫Refresh Token has expired. Expiry Date: {}", storedToken.getExpiryDate());
+            logger.warn("Refresh Token has expired. Expiry Date: {}", storedToken.getExpiryDate());
             refreshTokenRepo.delete(storedToken); // 만료된 토큰 삭제
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Refresh Token has expired. Please log in again."));
         }
 
         // Step 4: Refresh Token 검증
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            logger.warn("❌JWT Token validation failed.");
+            logger.warn("JWT Token validation failed.");
             refreshTokenRepo.delete(storedToken); // 변조된 토큰 삭제
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or reused Refresh Token."));
         }
@@ -80,7 +80,7 @@ public class AuthController {
                 .createdAt(LocalDateTime.now())
                 .build());
 
-        logger.info("✅Generated new tokens for user: {}", user.getUsername());
+        logger.info("Generated new tokens for user: {}", user.getUsername());
         return ResponseEntity.ok(Map.of(
                 "accessToken", newAccessToken,
                 "refreshToken", newRefreshToken
@@ -91,12 +91,12 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestBody RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
-        logger.info("➡️Received Logout Request with Refresh Token: {}", refreshToken);
+        logger.info("Received Logout Request with Refresh Token: {}", refreshToken);
 
         // Refresh Token이 데이터베이스에 존재하지 않을 경우
         Optional<RefreshToken> refreshTokenEntity = refreshTokenRepo.findByToken(refreshToken);
         if (refreshTokenEntity.isEmpty()) {
-            logger.warn("⚠️Refresh Token not found in the database.");
+            logger.warn("Refresh Token not found in the database.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid refresh token");
         }
 
@@ -105,12 +105,12 @@ public class AuthController {
                 .token(refreshToken)
                 .blacklistedAt(LocalDateTime.now())
                 .build());
-        logger.info("❗️Refresh Token added to blacklist: {}", refreshToken);
+        logger.info("Refresh Token added to blacklist: {}", refreshToken);
 
         // 기존 Refresh Token 삭제
         refreshTokenRepo.delete(refreshTokenEntity.get());
 
-        return ResponseEntity.ok("✅Successfully logged out");
+        return ResponseEntity.ok("Successfully logged out");
     }
 
 }

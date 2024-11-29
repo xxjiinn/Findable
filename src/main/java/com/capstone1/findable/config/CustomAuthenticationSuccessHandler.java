@@ -1,4 +1,4 @@
-package com.capstone1.findable.Config;
+package com.capstone1.findable.config;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
