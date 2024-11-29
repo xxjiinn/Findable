@@ -1,4 +1,4 @@
-package com.capstone1.findable.oauth;
+package com.capstone1.findable.oauth.service;
 
 import com.capstone1.findable.User.entity.Role;
 import com.capstone1.findable.User.entity.User;

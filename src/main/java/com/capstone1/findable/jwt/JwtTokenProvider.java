@@ -1,5 +1,7 @@
 package com.capstone1.findable.jwt;
 
+import com.capstone1.findable.User.entity.User;
+import com.capstone1.findable.User.repo.UserRepo;
 import com.capstone1.findable.oauth.repo.BlacklistedTokenRepo;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -17,6 +19,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
+    private final UserRepo userRepo;
     private final BlacklistedTokenRepo blacklistedTokenRepo;
 
     // SecretKey 객체 생성 (Keys 사용)
@@ -62,25 +65,43 @@ public class JwtTokenProvider {
         return claims.getSubject(); // 사용자 이름 반환
     }
 
+    public User getUserFromToken(String token) {
+        String username = getUsernameFromToken(token);
+        return userRepo.findByUsername(username); // username을 기반으로 사용자 정보 조회
+    }
+
     // 토큰의 유효성을 검증하는 메서드
+
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(secretKey) // SecretKey 객체를 사용
+                    .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
-            return true; // 유효한 토큰인 경우 true 반환
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) { // 토큰의 서명이 손상되었거나 잘못된 형식인 경우 발생.
-            System.out.println("⚠️ Invalid JWT signature: " + e.getMessage());
-        } catch (ExpiredJwtException e) { // 토큰의 유효 기간이 만료된 경우 발생. -> 클라이언트에게 새로 로그인하거나 리프레시 토큰을 사용해 새로운 Access Token 을 요청하도록 함.
-            System.out.println("⚠️ Expired JWT token: " + e.getMessage());
-        } catch (UnsupportedJwtException e) { // 서버가 지원하지 않는 형식의 JWT를 받았을 때 발생.
-            System.out.println("⚠️ Unsupported JWT token: " + e.getMessage());
-        } catch (IllegalArgumentException e) { // JWT가 비어 있거나 유효하지 않은 문자열일 때 발생.
-            System.out.println("⚠️ JWT token compact of handler are invalid: " + e.getMessage());
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("⚠️ Invalid JWT: " + e.getMessage());
+            return false;
         }
-        return false;
     }
+//    public boolean validateToken(String token) {
+//        try {
+//            Jwts.parserBuilder()
+//                    .setSigningKey(secretKey) // SecretKey 객체를 사용
+//                    .build()
+//                    .parseClaimsJws(token);
+//            return true; // 유효한 토큰인 경우 true 반환
+//        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) { // 토큰의 서명이 손상되었거나 잘못된 형식인 경우 발생.
+//            System.out.println("⚠️ Invalid JWT signature: " + e.getMessage());
+//        } catch (ExpiredJwtException e) { // 토큰의 유효 기간이 만료된 경우 발생. -> 클라이언트에게 새로 로그인하거나 리프레시 토큰을 사용해 새로운 Access Token 을 요청하도록 함.
+//            System.out.println("⚠️ Expired JWT token: " + e.getMessage());
+//        } catch (UnsupportedJwtException e) { // 서버가 지원하지 않는 형식의 JWT를 받았을 때 발생.
+//            System.out.println("⚠️ Unsupported JWT token: " + e.getMessage());
+//        } catch (IllegalArgumentException e) { // JWT가 비어 있거나 유효하지 않은 문자열일 때 발생.
+//            System.out.println("⚠️ JWT token compact of handler are invalid: " + e.getMessage());
+//        }
+//        return false;
+//    }
 
     // SecurityContext 에 인증 정보 설정
     public static void setAuthentication(UserDetails userDetails) {

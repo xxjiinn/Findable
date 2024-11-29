@@ -1,7 +1,7 @@
 package com.capstone1.findable.config;
 
 import com.capstone1.findable.jwt.JwtAuthenticationFilter;
-import com.capstone1.findable.oauth.PrincipalOauth2UserService;
+import com.capstone1.findable.oauth.service.PrincipalOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,9 +40,7 @@ public class SecurityConfig{
                     config.addAllowedMethod("*"); // 모든 메서드 허용
                     return config;
                 }
-    ))
-
-        ;
+    ));
 
         // 권한 설정
         http.authorizeHttpRequests(auth -> auth
