@@ -1,9 +1,7 @@
 package com.capstone1.findable.jwt;
 
 import com.capstone1.findable.oauth.repo.BlacklistedTokenRepo;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,19 +70,25 @@ public class JwtTokenProvider {
                     .build()
                     .parseClaimsJws(token);
             return true; // 유효한 토큰인 경우 true 반환
-        } catch (Exception e) {
-            System.out.println("⚠️⚠️Invalid JWT Token: " + e.getMessage()); // 유효하지 않은 경우 로그 출력
-            return false; // 유효하지 않은 토큰인 경우 false 반환
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) { // 토큰의 서명이 손상되었거나 잘못된 형식인 경우 발생.
+            System.out.println("⚠️ Invalid JWT signature: " + e.getMessage());
+        } catch (ExpiredJwtException e) { // 토큰의 유효 기간이 만료된 경우 발생. -> 클라이언트에게 새로 로그인하거나 리프레시 토큰을 사용해 새로운 Access Token 을 요청하도록 함.
+            System.out.println("⚠️ Expired JWT token: " + e.getMessage());
+        } catch (UnsupportedJwtException e) { // 서버가 지원하지 않는 형식의 JWT를 받았을 때 발생.
+            System.out.println("⚠️ Unsupported JWT token: " + e.getMessage());
+        } catch (IllegalArgumentException e) { // JWT가 비어 있거나 유효하지 않은 문자열일 때 발생.
+            System.out.println("⚠️ JWT token compact of handler are invalid: " + e.getMessage());
         }
+        return false;
     }
 
-    // SecurityContext에 인증 정보 설정
+    // SecurityContext 에 인증 정보 설정
     public static void setAuthentication(UserDetails userDetails) {
-        // Spring Security의 UsernamePasswordAuthenticationToken 사용
+        // Spring Security 의 UsernamePasswordAuthenticationToken 사용
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 userDetails, null, userDetails.getAuthorities() // 사용자 정보와 권한 설정
         );
-        SecurityContextHolder.getContext().setAuthentication(authentication); // SecurityContext에 인증 정보 저장
+        SecurityContextHolder.getContext().setAuthentication(authentication); // SecurityContext 에 인증 정보 저장
     }
 
     public boolean isTokenBlacklisted(String token) {

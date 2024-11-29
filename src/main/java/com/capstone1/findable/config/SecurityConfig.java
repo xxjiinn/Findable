@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity //security 지원 활성화
@@ -26,12 +27,22 @@ public class SecurityConfig{
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        http.csrf(AbstractHttpConfigurer::disable);
-        // CSRF 비활성화
-        // REST API와 같은 상태를 저장하지 않는 애플리케이션에서 자주 사용하는 설정
-        // 다른 도메인에서 API호출되는거 막지 않겠다. Rest Api -> 브라우저 통해 request 받아서 꺼도 됨.
-//                .cors(AbstractHttpConfigurer::disable); //이거 disable안하면 프런트에서 요청 보냈을 때 response 안하고 에러 발생시킵니다
-//                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.csrf(AbstractHttpConfigurer::disable)
+                // Spring Security 는 별도의 CORS 정책을 사용하기 때문에,
+                // CorsConfig 가 Spring Security 와 연동되도록 하기 위해서,
+                // SecurityConfig 에 .cors() 설정을 추가해야 함.
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowCredentials(true); // 쿠키 허용
+                    config.addAllowedOriginPattern("*"); // 모든 도메인 허용
+                    // config.addAllowedOriginPattern("https://example.com");
+                    config.addAllowedHeader("*"); // 모든 헤더 허용
+                    config.addAllowedMethod("*"); // 모든 메서드 허용
+                    return config;
+                }
+    ))
+
+        ;
 
         // 권한 설정
         http.authorizeHttpRequests(auth -> auth
@@ -41,16 +52,9 @@ public class SecurityConfig{
                 .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")  // 매니저와 관리자 접근 허용
                 .requestMatchers("/admin/**").hasRole("ADMIN")  // 관리자만 접근 허용
                 .requestMatchers("/signup.html", "/login.html").permitAll()  // 회원가입, 로그인 페이지는 누구나 접근 가능
-                .anyRequest().authenticated()  // 나머지 모든 요청은 로그인 필요
+                .anyRequest().authenticated()  // 나머지 모든 요청은 로그인으로 인증된 사용자만 접근 가능
         );
-//
-//        http.formLogin(form -> form
-//                .loginPage("/login.html")
-//                .loginProcessingUrl("/login") // /login으로 호출오면 세큐리티가 낚아채서 로그인 진행
-////                                .successHandler(customAuthenticationSuccessHandler) // 성공 시 핸들러 적용
-//                .defaultSuccessUrl("/home.html", true) //loginForm으로 와서 로그인하면 /로 이동하는데, user로 와서 로그인하면 /user로 이동하게 설정
-//                .permitAll())
-//                .httpBasic(AbstractHttpConfigurer::disable); //
+
 
         // 로그인 및 OAuth2 설정
         http.formLogin(form -> form

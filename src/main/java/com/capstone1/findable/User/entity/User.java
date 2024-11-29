@@ -32,7 +32,7 @@ public class User {
     private boolean registered;  // 회원가입 여부 /
 
     @Enumerated(EnumType.STRING)
-    private Role role;  // Enum으로 역할 관리
+    private Role role;  // Enum 으로 역할 관리
 
     private String provider;    // OAuth2 provider (예: Google)
     private String providerId;  // OAuth2 provider ID

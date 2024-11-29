@@ -29,14 +29,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 JwtTokenProvider.setAuthentication(userDetails);
             } else {
-                logger.warn("Access Token is invalid or expired.");
+                logger.warn("⚠️ Access Token is invalid or expired.");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("{\"error\":\"Access Token has expired. Please log out and log in again.\"}");
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\":\"Invalid or expired JWT token.\"}");
                 return; // 요청 처리 중단
             }
         }
         filterChain.doFilter(request, response);
     }
-
-
 }
