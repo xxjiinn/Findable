@@ -40,9 +40,6 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
         return user.isRegistered(); // User 엔티티에 등록 여부 확인
     }
 
-
-    // 사용자 엔티티(User)의 role 필드 값을 기반으로 권한(GrantedAuthority)을 생성.
-    // Spring Security 는 이 정보를 사용해 요청의 인가 여부를 판단.
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(

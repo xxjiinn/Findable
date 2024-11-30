@@ -31,7 +31,7 @@ public class UserService {
                 .username(dto.getName())
                 .password(encodedPassword)
                 .email(dto.getEmail())
-                .role(Role.ROLE_USER) // 일반 사용자는 USER 권한 부여 ...// .. JWT 공부
+                .role(Role.ROLE_USER) // 일반 사용자는 USER 권한 부여
                 .build());
 
         logger.info("✅User created successfully with email: {}", dto.getEmail());

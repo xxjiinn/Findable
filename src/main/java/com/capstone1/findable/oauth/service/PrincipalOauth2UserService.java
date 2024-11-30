@@ -89,4 +89,3 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         return new PrincipalDetails(user, oauth2User.getAttributes()); //PrincipalDetails가 Authentication에 들어간다
     }
 }
-

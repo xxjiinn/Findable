@@ -2,6 +2,7 @@ package com.capstone1.findable.config;
 
 import com.capstone1.findable.jwt.JwtAuthenticationFilter;
 import com.capstone1.findable.oauth.service.PrincipalOauth2UserService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +13,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity //security 지원 활성화
@@ -27,20 +27,7 @@ public class SecurityConfig{
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        http.csrf(AbstractHttpConfigurer::disable)
-                // Spring Security 는 별도의 CORS 정책을 사용하기 때문에,
-                // CorsConfig 가 Spring Security 와 연동되도록 하기 위해서,
-                // SecurityConfig 에 .cors() 설정을 추가해야 함.
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowCredentials(true); // 쿠키 허용
-                    config.addAllowedOriginPattern("*"); // 모든 도메인 허용
-                    // config.addAllowedOriginPattern("https://example.com");
-                    config.addAllowedHeader("*"); // 모든 헤더 허용
-                    config.addAllowedMethod("*"); // 모든 메서드 허용
-                    return config;
-                }
-    ));
+        http.csrf(AbstractHttpConfigurer::disable);
 
         // 권한 설정
         http.authorizeHttpRequests(auth -> auth
@@ -50,7 +37,7 @@ public class SecurityConfig{
                 .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")  // 매니저와 관리자 접근 허용
                 .requestMatchers("/admin/**").hasRole("ADMIN")  // 관리자만 접근 허용
                 .requestMatchers("/signup.html", "/login.html").permitAll()  // 회원가입, 로그인 페이지는 누구나 접근 가능
-                .anyRequest().authenticated()  // 나머지 모든 요청은 로그인으로 인증된 사용자만 접근 가능
+                .anyRequest().authenticated()  // 나머지 모든 요청은 로그인 필요
         );
 
 
