@@ -48,7 +48,7 @@ public class UserController {
         if (loginDTO.getEmail() == null || loginDTO.getPassword() == null) {
             logger.error("❌ [LOGIN] Missing required fields");
             return ResponseEntity.badRequest().body("Email and password are required.");
-        }
+        }//
 
         try {
             String token = userService.loginUser(loginDTO);
