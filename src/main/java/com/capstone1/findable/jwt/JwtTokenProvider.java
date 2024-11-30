@@ -1,15 +1,15 @@
 package com.capstone1.findable.jwt;
 
+import com.capstone1.findable.User.service.UserService;
 import com.capstone1.findable.oauth.repo.BlacklistedTokenRepo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -20,74 +20,77 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private final BlacklistedTokenRepo blacklistedTokenRepo;
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    // SecretKey 객체 생성 (Keys 사용)
     private SecretKey secretKey;
 
-    // 시크릿 키 초기화
     @Value("${jwt.secret-key}")
     public void setSecretKey(String secretKeyString) {
         this.secretKey = Keys.hmacShaKeyFor(secretKeyString.getBytes());
     }
 
-    // 액세스 토큰 생성 메서드
+    // Access Token 생성
     public String generateAccessToken(String username) {
-        // 액세스 토큰 유효 기간 (1시간)
-        long ACCESS_TOKEN_VALIDITY = 1000L * 60 * 60;
-        return Jwts.builder()
-                .setSubject(username) // 토큰에 사용자 정보 설정
-                .setIssuedAt(new Date()) // 토큰 발급 시간
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY)) // 만료 시간 설정
-                .signWith(secretKey, SignatureAlgorithm.HS512) // SecretKey와 알고리즘을 사용하여 서명
-                .compact(); // 토큰 생성
-    }
-
-    // 리프레시 토큰 생성 메서드
-    public String generateRefreshToken(String username) {
-        // 리프레시 토큰 유효 기간 (1주일)
-        long REFRESH_TOKEN_VALIDITY = 1000L * 60 * 60 * 24 * 7;
+        long ACCESS_TOKEN_VALIDITY = 1000L * 60 * 60; // 1시간
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY))
-                .signWith(secretKey, SignatureAlgorithm.HS512) // SecretKey와 알고리즘을 사용하여 서명
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY))
+                .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
 
-    // 토큰에서 사용자 이름을 추출하는 메서드
-    public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey) // SecretKey 객체를 사용
-                .build()
-                .parseClaimsJws(token) // JWT 토큰 파싱
-                .getBody(); // 파싱된 토큰에서 Claims 정보 추출
-        return claims.getSubject(); // 사용자 이름 반환
-    }
-
-    // 토큰의 유효성을 검증하는 메서드
-    public boolean validateToken(String token) {
+    // Refresh Token 생성
+    // Refresh Token 생성
+    public String generateRefreshToken(String username) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(secretKey) // SecretKey 객체를 사용
-                    .build()
-                    .parseClaimsJws(token);
-            return true; // 유효한 토큰인 경우 true 반환
+            long REFRESH_TOKEN_VALIDITY = 1000L * 60 * 60 * 24 * 7; // 1주일
+            String refreshToken = Jwts.builder()
+                    .setSubject(username)
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY))
+                    .signWith(SignatureAlgorithm.HS512, secretKey)
+                    .compact();
+            logger.debug("Generated Refresh Token: {}", refreshToken);
+            return refreshToken;
         } catch (Exception e) {
-            System.out.println("⚠️⚠️Invalid JWT Token: " + e.getMessage()); // 유효하지 않은 경우 로그 출력
-            return false; // 유효하지 않은 토큰인 경우 false 반환
+            logger.error("❌ Error generating Refresh Token for username: {}", username, e);
+            throw new RuntimeException("Failed to generate Refresh Token");
         }
     }
 
-    // SecurityContext에 인증 정보 설정
-    public static void setAuthentication(UserDetails userDetails) {
-        // Spring Security의 UsernamePasswordAuthenticationToken 사용
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities() // 사용자 정보와 권한 설정
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication); // SecurityContext에 인증 정보 저장
+
+    // 토큰에서 사용자 이름 추출
+    public String getUsernameFromToken(String token) {
+        return getClaimsFromToken(token).getSubject();
     }
 
+    // 토큰의 유효성을 검증
+    public boolean validateToken(String token) {
+        try {
+            Claims claims = getClaimsFromToken(token);
+            return !isTokenExpired(claims) && !isTokenBlacklisted(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // 토큰이 블랙리스트에 있는지 확인
     public boolean isTokenBlacklisted(String token) {
         return blacklistedTokenRepo.findByToken(token).isPresent();
+    }
+
+    // 토큰 만료 여부 확인
+    private boolean isTokenExpired(Claims claims) {
+        return claims.getExpiration().before(new Date());
+    }
+
+    // JWT 토큰에서 Claims 추출
+    public Claims getClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

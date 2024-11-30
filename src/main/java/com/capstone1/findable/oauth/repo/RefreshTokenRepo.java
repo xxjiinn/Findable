@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface RefreshTokenRepo extends JpaRepository<RefreshToken, Long> {
-    Optional<RefreshToken> findByToken(String token); // 리프레시 토큰으로 엔티티를 찾는 메서드
-
-    Optional<RefreshToken> findByUserId(Long userId); // 유저 ID로 리프레시 토큰 찾기
+    Optional<RefreshToken> findByToken(String token); // 기존 메서드
+    Optional<RefreshToken> findByTokenAndDeviceId(String token, String deviceId); // 새로 추가된 메서드
+    Optional<RefreshToken> findByUserId(Long userId);
 
     @Transactional
     int deleteByExpiryDateBefore(LocalDateTime now);

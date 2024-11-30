@@ -33,17 +33,17 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     }
 
     public Long getId() {
-        return user.getId();
+        return user.getId(); // 사용자 ID 반환
     }
 
     public boolean isRegistered() {
-        return user.isRegistered(); // User 엔티티에 등록 여부 확인
+        return user.isRegistered(); // 회원가입 여부 반환
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().name()) // 사용자 역할 기반 권한
         );
     }
 
@@ -59,31 +59,31 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return true; // 계정이 만료되지 않음
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return true; // 계정이 잠기지 않음
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return true; // 자격 증명이 만료되지 않음
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return true; // 계정 활성화 상태
     }
 
     @Override
     public Map<String, Object> getAttributes() {
-        return attributes;
+        return attributes; // OAuth2 사용자 정보
     }
 
     @Override
     public String getName() {
-        return user.getUsername();
+        return user.getUsername(); // OAuth2 사용자 이름
     }
 }

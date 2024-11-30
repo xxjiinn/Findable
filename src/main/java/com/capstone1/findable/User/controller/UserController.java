@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,31 +25,41 @@ public class UserController {
     // 회원가입 엔드포인트
     @PostMapping("/signup")
     public ResponseEntity<Void> createUser(@Valid @RequestBody UserDTO.CreateUserDTO dto) {
-        logger.info("🔥 User sign-up attempt with name: {}, email: {}", dto.getName(), dto.getEmail());
+        logger.info("🔥 [SIGNUP] Attempt with data: {}", dto);
+        if (dto.getName() == null || dto.getEmail() == null || dto.getPassword() == null) {
+            logger.error("❌ [SIGNUP] Missing required fields");
+            return ResponseEntity.badRequest().build();
+        }
+
         try {
             userService.createUser(dto);
-            logger.info("✅ User created successfully with email: {}", dto.getEmail());
+            logger.info("✅ [SIGNUP] User created successfully with email: {}", dto.getEmail());
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
-            logger.error("⚠️ User creation failed for email: {}", dto.getEmail(), e);
+            logger.error("⚠️ [SIGNUP] User creation failed for email: {}", dto.getEmail(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    //
-
     // 로그인 엔드포인트
     @PostMapping("/login")
     public ResponseEntity<Object> loginUser(@RequestBody UserDTO.LoginUserDTO loginDTO) {
-        logger.info("🔥 Login attempt with email: {}", loginDTO.getEmail());
+        logger.info("🔥 [LOGIN] Attempt with email: {}", loginDTO.getEmail());
+        if (loginDTO.getEmail() == null || loginDTO.getPassword() == null) {
+            logger.error("❌ [LOGIN] Missing required fields");
+            return ResponseEntity.badRequest().body("Email and password are required.");
+        }
+
         try {
             String token = userService.loginUser(loginDTO);
-            logger.info("✅ Login successful for email: {}", loginDTO.getEmail());
-            return ResponseEntity.ok(token); // JWT 토큰 반환
+            logger.info("✅ [LOGIN] Successful for email: {}", loginDTO.getEmail());
+            return ResponseEntity.ok().header("Authorization", "Bearer " + token).body(Map.of(
+                    "accessToken", token,
+                    "refreshToken", "YourRefreshTokenHere"
+            ));
         } catch (IllegalArgumentException e) {
-            logger.error("⚠️ Login failed for email: {}", loginDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid email or password"); // 401 Unauthorized
+            logger.error("⚠️ [LOGIN] Failed for email: {}", loginDTO.getEmail());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
         }
     }
 
@@ -58,44 +69,44 @@ public class UserController {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         return ResponseEntity.ok(UserDTO.ReadUserDTO.builder()
                 .id(userDetails.getId())
-                .name(userDetails.getUsername())
-                .email(userDetails.getEmail())
+                .name(userDetails.getUsername())   // 표시 이름
+                .email(userDetails.getEmail())    // 이메일 (고유 식별자)
                 .build());
     }
 
     // 모든 사용자 조회
     @GetMapping("")
     public ResponseEntity<List<UserDTO.ReadUserDTO>> findAllUser() {
-        logger.info("🔥 Fetching all users");
+        logger.info("🔥 [FIND ALL USERS]");
         List<UserDTO.ReadUserDTO> users = userService.findAllUser();
-        logger.info("✅ Fetched {} users", users.size());
+        logger.info("✅ [FIND ALL USERS] Found {} users", users.size());
         return ResponseEntity.ok(users);
     }
 
     // ID로 사용자 조회
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO.ReadUserDTO> findUserById(@PathVariable Long id) {
-        logger.info("🔥 Fetching user with id: {}", id);
+        logger.info("🔥 [FIND USER BY ID] Fetching user with id: {}", id);
         UserDTO.ReadUserDTO user = userService.findUserById(id);
-        logger.info("✅ Fetched user with id: {}", id);
-        return ResponseEntity.ok(user); // 200 OK // // Security 공부 중....
+        logger.info("✅ [FIND USER BY ID] Fetched user with id: {}", id);
+        return ResponseEntity.ok(user);
     }
 
-    // 사용자 정보 업데이트 /
+    // 사용자 정보 업데이트
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateUser(@PathVariable Long id, @Valid @RequestBody UserDTO.ReadUserDTO dto) {
-        logger.info("🔥 Updating user with id: {}", id);
+        logger.info("🔥 [UPDATE USER] Updating user with id: {}", id);
         userService.updateUserInfo(id, dto);
-        logger.info("✅ Updated user with id: {}", id);
+        logger.info("✅ [UPDATE USER] Updated user with id: {}", id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     // 사용자 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        logger.info("🔥 Deleting user with id: {}", id);
+        logger.info("🔥 [DELETE USER] Deleting user with id: {}", id);
         userService.deleteUser(id);
-        logger.info("✅ Deleted user with id: {}", id);
+        logger.info("✅ [DELETE USER] Deleted user with id: {}", id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

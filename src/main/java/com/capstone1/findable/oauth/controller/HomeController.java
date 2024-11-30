@@ -10,23 +10,24 @@ public class HomeController {
 
     @GetMapping("/")
     public String redirectToAppropriatePage(Authentication authentication) {
-        if (authentication == null) {
-            // 로그인 안 되어 있을 경우 로그인 페이지로 리다이렉트
-            return "redirect:/login.html";
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login.html"; // 인증되지 않은 사용자는 로그인 페이지로 이동
         }
 
-        // 로그인이 되어 있지만 회원가입이 안 되어 있을 경우
+        // 사용자가 등록되지 않은 경우 회원가입 페이지로 이동
         if (!isUserRegistered(authentication)) {
             return "redirect:/signup.html";
         }
 
-        // 로그인 되어 있을 경우 홈 페이지로 리다이렉트
+        // 인증된 사용자는 홈 페이지로 이동
         return "redirect:/home.html";
     }
 
     private boolean isUserRegistered(Authentication authentication) {
-        // PrincipalDetails에서 회원가입 여부 확인
-        PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-        return userDetails.isRegistered(); // 회원가입 여부 반환
+        if (authentication.getPrincipal() instanceof PrincipalDetails) {
+            PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+            return userDetails.isRegistered();
+        }
+        return false;
     }
 }

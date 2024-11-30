@@ -10,12 +10,39 @@
 
 <h1>Welcome to the Home Page</h1>
 
-    <ul>
-        <li><a href="/posts.html">Posts</a></li>
-        <li><a href="/notices.html">Notices</a></li>
-        <li><a href="/faq.html">FAQ</a></li>
-    </ul>
+<ul>
+    <li><a href="/posts.html">Posts</a></li>
+    <li><a href="/notices.html">Notices</a></li>
+    <li><a href="/faq.html">FAQ</a></li>
+</ul>
 
+<!-- 로그아웃 버튼 -->
+<button id="logout-btn">Logout</button>
+
+<script>
+    document.getElementById('logout-btn').addEventListener('click', function() {
+        const refreshToken = localStorage.getItem('refreshToken');
+
+        fetch('/api/auth/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ refreshToken }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Logout successful');
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    window.location.href = '/login.html';
+                } else {
+                    alert('Failed to logout');
+                }
+            })
+            .catch(error => console.error('Error logging out:', error));
+    });
+</script>
 
 </body>
 </html>

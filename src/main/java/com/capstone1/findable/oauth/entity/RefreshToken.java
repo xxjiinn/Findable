@@ -18,12 +18,17 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) // 한 유저가 여러 Refresh Token을 가질 수 있음
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(length = 65535) // 토큰 길이를 충분히 넓게 설정
+    @Column(length = 65535, nullable = false)
     private String token; // 실제 리프레시 토큰 값
+
+    @Column(nullable = false)
+    private String deviceId; // 디바이스 또는 세션 식별자 추가
+
+    @Column(nullable = false)
     private LocalDateTime expiryDate; // 리프레시 토큰의 만료 날짜
 
     @Column(updatable = false)
