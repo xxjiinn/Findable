@@ -22,13 +22,14 @@
 <script>
     document.getElementById('logout-btn').addEventListener('click', function() {
         const refreshToken = localStorage.getItem('refreshToken');
+        const accessToken = localStorage.getItem('accessToken');
 
         fetch('/api/auth/logout', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ refreshToken }),
+            body: JSON.stringify({ refreshToken, accessToken }),
         })
             .then(response => {
                 if (response.ok) {
@@ -42,6 +43,7 @@
             })
             .catch(error => console.error('Error logging out:', error));
     });
+
 </script>
 
 </body>

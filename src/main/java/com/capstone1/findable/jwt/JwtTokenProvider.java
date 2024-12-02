@@ -1,6 +1,5 @@
 package com.capstone1.findable.jwt;
 
-import com.capstone1.findable.User.service.UserService;
 import com.capstone1.findable.oauth.repo.BlacklistedTokenRepo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -19,8 +18,8 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
     private final BlacklistedTokenRepo blacklistedTokenRepo;
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private SecretKey secretKey;
 
@@ -29,55 +28,63 @@ public class JwtTokenProvider {
         this.secretKey = Keys.hmacShaKeyFor(secretKeyString.getBytes());
     }
 
+    @Value("${jwt.access-token-validity}")
+    private long accessTokenValidity; // Access Token 유효 시간 (ms)
+
+    @Value("${jwt.refresh-token-validity}")
+    private long refreshTokenValidity; // Refresh Token 유효 시간 (ms)
+
     // Access Token 생성
     public String generateAccessToken(String username) {
-        long ACCESS_TOKEN_VALIDITY = 1000L * 60 * 60; // 1시간
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY))
-                .signWith(secretKey, SignatureAlgorithm.HS512)
-                .compact();
+        return generateToken(username, accessTokenValidity);
     }
 
-    // Refresh Token 생성
     // Refresh Token 생성
     public String generateRefreshToken(String username) {
-        try {
-            long REFRESH_TOKEN_VALIDITY = 1000L * 60 * 60 * 24 * 7; // 1주일
-            String refreshToken = Jwts.builder()
-                    .setSubject(username)
-                    .setIssuedAt(new Date())
-                    .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY))
-                    .signWith(SignatureAlgorithm.HS512, secretKey)
-                    .compact();
-            logger.debug("Generated Refresh Token: {}", refreshToken);
-            return refreshToken;
-        } catch (Exception e) {
-            logger.error("❌ Error generating Refresh Token for username: {}", username, e);
-            throw new RuntimeException("Failed to generate Refresh Token");
-        }
+        return generateToken(username, refreshTokenValidity);
     }
 
+    // 공통 토큰 생성 메서드
+    private String generateToken(String username, long validity) {
+        try {
+            Date now = new Date();
+            Date expiryDate = new Date(now.getTime() + validity);
+
+            return Jwts.builder()
+                    .setSubject(username)
+                    .setIssuedAt(now)
+                    .setExpiration(expiryDate)
+                    .signWith(secretKey, SignatureAlgorithm.HS512)
+                    .compact();
+        } catch (Exception e) {
+            logger.error("❌ Error generating token for username: {}", username, e);
+            throw new RuntimeException("Failed to generate token");
+        }
+    }
 
     // 토큰에서 사용자 이름 추출
     public String getUsernameFromToken(String token) {
         return getClaimsFromToken(token).getSubject();
     }
 
-    // 토큰의 유효성을 검증
+    // 토큰 검증
     public boolean validateToken(String token) {
         try {
             Claims claims = getClaimsFromToken(token);
             return !isTokenExpired(claims) && !isTokenBlacklisted(token);
         } catch (Exception e) {
+            logger.warn("Token validation failed: {}", e.getMessage());
             return false;
         }
     }
 
     // 토큰이 블랙리스트에 있는지 확인
     public boolean isTokenBlacklisted(String token) {
-        return blacklistedTokenRepo.findByToken(token).isPresent();
+        boolean isBlacklisted = blacklistedTokenRepo.findByToken(token).isPresent();
+        if (isBlacklisted) {
+            logger.info("Token is blacklisted: {}", token);
+        }
+        return isBlacklisted;
     }
 
     // 토큰 만료 여부 확인
@@ -87,10 +94,15 @@ public class JwtTokenProvider {
 
     // JWT 토큰에서 Claims 추출
     public Claims getClaimsFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            logger.error("Error parsing token: {}", e.getMessage());
+            throw new RuntimeException("Invalid JWT token");
+        }
     }
 }

@@ -48,20 +48,19 @@ public class UserController {
         if (loginDTO.getEmail() == null || loginDTO.getPassword() == null) {
             logger.error("❌ [LOGIN] Missing required fields");
             return ResponseEntity.badRequest().body("Email and password are required.");
-        }//
+        }
 
         try {
-            String token = userService.loginUser(loginDTO);
+            Map<String, String> tokens = userService.loginUser(loginDTO); // AccessToken과 RefreshToken 받음
             logger.info("✅ [LOGIN] Successful for email: {}", loginDTO.getEmail());
-            return ResponseEntity.ok().header("Authorization", "Bearer " + token).body(Map.of(
-                    "accessToken", token,
-                    "refreshToken", "YourRefreshTokenHere"
-            ));
+            return ResponseEntity.ok().header("Authorization", "Bearer " + tokens.get("accessToken")).body(tokens);
         } catch (IllegalArgumentException e) {
             logger.error("⚠️ [LOGIN] Failed for email: {}", loginDTO.getEmail());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
         }
     }
+
+
 
     // 현재 로그인된 사용자 정보 가져오기
     @GetMapping("/me")
