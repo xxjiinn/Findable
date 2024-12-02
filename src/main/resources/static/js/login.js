@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // 로그인 처리
+    // 로그인 폼 처리
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', async function (event) {
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 localStorage.setItem('accessToken', data.accessToken);
                 localStorage.setItem('refreshToken', data.refreshToken);
                 alert('Login successful');
-                window.location.href = '/home.html';
+                window.location.href = '/home.html'; // 로그인 성공 후 이동
             } catch (error) {
                 alert(error.message || 'Login failed');
             }
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             try {
-                // 서버 로그아웃 요청
+                // Step 1: 서버 로그아웃 요청
                 const response = await fetch('/api/auth/logout', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -53,22 +53,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!response.ok) {
                     throw new Error('Server logout failed.');
                 }
+
                 console.log('Server logout successful');
 
-                // Google 로그아웃 요청
-                const googleLogoutUrl = `https://accounts.google.com/o/oauth2/revoke?token=${accessToken}`;
-                const googleResponse = await fetch(googleLogoutUrl);
-                if (googleResponse.ok) {
+                // Step 2: Google 로그아웃 호출
+                const googleLogoutResponse = await fetch(
+                    `https://accounts.google.com/o/oauth2/revoke?token=${accessToken}`
+                );
+                if (googleLogoutResponse.ok) {
                     console.log('Google logout successful');
                 } else {
                     console.warn('Google logout failed');
                 }
 
-                // 토큰 삭제 및 페이지 이동
+                // Step 3: 클라이언트 토큰 삭제
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
                 alert('Logout successful!');
-                window.location.href = '/login.html';
+                window.location.href = '/login.html'; // 로그아웃 후 이동
             } catch (error) {
                 console.error('Error during logout:', error);
                 alert(error.message || 'An error occurred during logout.');

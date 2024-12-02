@@ -19,32 +19,8 @@
 <!-- 로그아웃 버튼 -->
 <button id="logout-btn">Logout</button>
 
-<script>
-    document.getElementById('logout-btn').addEventListener('click', function() {
-        const refreshToken = localStorage.getItem('refreshToken');
-        const accessToken = localStorage.getItem('accessToken');
-
-        fetch('/api/auth/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ refreshToken, accessToken }),
-        })
-            .then(response => {
-                if (response.ok) {
-                    alert('Logout successful');
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('refreshToken');
-                    window.location.href = '/login.html';
-                } else {
-                    alert('Failed to logout');
-                }
-            })
-            .catch(error => console.error('Error logging out:', error));
-    });
-
-</script>
+<!-- JavaScript는 login.js에 포함됨 -->
+<script src="/js/login.js"></script>
 
 </body>
 </html>

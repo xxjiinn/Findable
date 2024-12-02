@@ -7,5 +7,8 @@ import java.util.List;
 
 public interface PostRepo extends JpaRepository<Post, Long> {
     List<Post> findByTitleContainingOrContentContaining(String title, String content);
+
+    List<Post> findByUserId(Long userId);
+
 }
 

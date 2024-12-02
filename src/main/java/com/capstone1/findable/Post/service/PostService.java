@@ -31,6 +31,14 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    public List<PostDTO.ReadPostDTO> findMyPosts(Long userId) {
+        return postRepo.findByUserId(userId)
+                .stream()
+                .map(PostDTO.ReadPostDTO::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
     public PostDTO.ReadPostDTO findPostById(Long id){
         Post post = postRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("⚠️ No Post found! (while reading post"));
         return PostDTO.ReadPostDTO.toDTO(post);

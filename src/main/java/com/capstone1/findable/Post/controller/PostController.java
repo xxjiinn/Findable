@@ -29,6 +29,13 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
+    @GetMapping("/myPosts/{userId}")
+    public ResponseEntity<List<PostDTO.ReadPostDTO>> findMyPosts(@PathVariable Long userId) {
+        List<PostDTO.ReadPostDTO> myPosts = postService.findMyPosts(userId);
+        return ResponseEntity.ok(myPosts);
+    }
+
+
     @GetMapping("/{id}")
     public ResponseEntity<PostDTO.ReadPostDTO> findPostById(@PathVariable Long id){
         PostDTO.ReadPostDTO post = postService.findPostById(id);
