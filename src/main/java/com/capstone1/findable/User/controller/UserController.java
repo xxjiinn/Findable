@@ -3,6 +3,8 @@ package com.capstone1.findable.User.controller;
 import com.capstone1.findable.User.dto.UserDTO;
 import com.capstone1.findable.User.service.UserService;
 import com.capstone1.findable.config.CustomUserDetails;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -42,23 +44,45 @@ public class UserController {
     }
 
     // 로그인 엔드포인트
+    // [수정 내용]
+// 로그인 API에서 토큰을 응답으로 전달하지 않고, HttpOnly 쿠키로 설정합니다.
+
     @PostMapping("/login")
-    public ResponseEntity<Object> loginUser(@RequestBody UserDTO.LoginUserDTO loginDTO) {
+    public ResponseEntity<Map<String, String>> loginUser(@RequestBody UserDTO.LoginUserDTO loginDTO, HttpServletResponse response) {
         logger.info("🔥 [LOGIN] Attempt with email: {}", loginDTO.getEmail());
         if (loginDTO.getEmail() == null || loginDTO.getPassword() == null) {
             logger.error("❌ [LOGIN] Missing required fields");
-            return ResponseEntity.badRequest().body("Email and password are required.");
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
         }
 
         try {
             Map<String, String> tokens = userService.loginUser(loginDTO); // AccessToken과 RefreshToken 받음
+
+            // Access Token을 쿠키에 추가
+            addTokenToCookie(response, "accessToken", tokens.get("accessToken"), false);
+
+            // Refresh Token을 HttpOnly 쿠키에 추가
+            addTokenToCookie(response, "refreshToken", tokens.get("refreshToken"), true);
+
             logger.info("✅ [LOGIN] Successful for email: {}", loginDTO.getEmail());
-            return ResponseEntity.ok().header("Authorization", "Bearer " + tokens.get("accessToken")).body(tokens);
+            return ResponseEntity.ok(Map.of("message", "Login successful")); // 성공 메시지 반환
         } catch (IllegalArgumentException e) {
             logger.error("⚠️ [LOGIN] Failed for email: {}", loginDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
         }
     }
+
+
+    // 쿠키 추가 유틸리티 메서드
+    private void addTokenToCookie(HttpServletResponse response, String name, String token, boolean httpOnly) {
+        Cookie cookie = new Cookie(name, token);
+        cookie.setHttpOnly(httpOnly);
+        cookie.setSecure(true); // HTTPS에서만 작동
+        cookie.setPath("/");
+        cookie.setMaxAge(7 * 24 * 60 * 60); // 7일 유효
+        response.addCookie(cookie);
+    }
+
 
 
 

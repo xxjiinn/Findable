@@ -14,11 +14,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Arrays;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -28,38 +29,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
 
-    private static final List<String> EXCLUDED_PATHS = List.of(
-            "/api/user/signup",
-            "/api/user/login",
-            "/css/",
-            "/js/"
-    );
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String uri = request.getRequestURI();
-
-        // 인증이 필요 없는 경로 건너뛰기
-        if (EXCLUDED_PATHS.stream().anyMatch(uri::startsWith)) {
-            chain.doFilter(request, response);
-            return;
-        }
-
         try {
-            String token = extractToken(request);
-            if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
-                Claims claims = jwtTokenProvider.getClaimsFromToken(token);
-                String username = claims.getSubject();
+            // 1. 토큰 추출: 쿠키 > Authorization 헤더
+            String token = extractTokenFromCookies(request);
+            if (token == null) {
+                token = extractTokenFromHeader(request);
+            }
 
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+            // 2. Access Token 유효성 검사
+            if (StringUtils.hasText(token)) {
+                if (jwtTokenProvider.validateToken(token)) {
+                    authenticateUser(token, request);
+                }
+                // Access Token 만료 시 Refresh Token으로 새 Access Token 발급
+                else if (jwtTokenProvider.isTokenExpired(token)) {
+                    String refreshToken = extractTokenFromCookies(request, "refreshToken");
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    if (StringUtils.hasText(refreshToken) && jwtTokenProvider.validateToken(refreshToken)) {
+                        // 새 Access Token 생성
+                        String username = jwtTokenProvider.getClaimsFromToken(refreshToken).getSubject();
+                        String newAccessToken = jwtTokenProvider.generateAccessToken(username);
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                logger.info("User authenticated successfully: {}", username);
+                        // 응답에 새 Access Token 추가
+                        response.setHeader("Authorization", "Bearer " + newAccessToken);
+
+                        // SecurityContext에 설정
+                        UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        logger.info("Access Token refreshed for user: {}", username);
+                    } else {
+                        logger.warn("Refresh Token invalid or missing.");
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        return;
+                    }
+                }
             }
         } catch (Exception e) {
             logger.error("Authentication error: {}", e.getMessage(), e);
@@ -68,11 +78,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
-    private String extractToken(HttpServletRequest request) {
+    private String extractTokenFromCookies(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            return Arrays.stream(request.getCookies())
+                    .filter(cookie -> "accessToken".equals(cookie.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    private String extractTokenFromCookies(HttpServletRequest request, String cookieName) {
+        if (request.getCookies() != null) {
+            return Arrays.stream(request.getCookies())
+                    .filter(cookie -> cookieName.equals(cookie.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    private String extractTokenFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7); // "Bearer " 이후의 토큰 값 반환
         }
         return null;
+    }
+
+    private void authenticateUser(String token, HttpServletRequest request) {
+        Claims claims = jwtTokenProvider.getClaimsFromToken(token);
+        String username = claims.getSubject();
+
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        logger.info("User authenticated successfully: {}", username);
     }
 }

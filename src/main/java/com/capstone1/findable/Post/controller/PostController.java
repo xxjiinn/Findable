@@ -23,7 +23,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("")
+    @GetMapping("/posts")
     public ResponseEntity<List<PostDTO.ReadPostDTO>> findAllPost(){
         List<PostDTO.ReadPostDTO> posts = postService.findAllPost();
         return ResponseEntity.ok(posts);

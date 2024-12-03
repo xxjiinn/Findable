@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -70,11 +71,28 @@ public class JwtTokenProvider {
     // 토큰 검증
     public boolean validateToken(String token) {
         try {
-            Claims claims = getClaimsFromToken(token);
-            return !isTokenExpired(claims) && !isTokenBlacklisted(token);
+            if (StringUtils.hasText(token) && token.split("\\.").length == 3) { // 기본 구조 검사
+                Claims claims = getClaimsFromToken(token);
+                return !isTokenExpired(token) && !isTokenBlacklisted(token);
+            } else {
+                logger.warn("Token is not in the expected JWT format: {}", token);
+                return false;
+            }
         } catch (Exception e) {
             logger.warn("Token validation failed: {}", e.getMessage());
             return false;
+        }
+    }
+
+
+    // 토큰 만료 여부 확인 (Public 메서드로 수정)
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = getClaimsFromToken(token);
+            return claims.getExpiration().before(new Date());
+        } catch (Exception e) {
+            logger.error("Error checking token expiration: {}", e.getMessage());
+            throw new RuntimeException("Invalid JWT token");
         }
     }
 
@@ -85,11 +103,6 @@ public class JwtTokenProvider {
             logger.info("Token is blacklisted: {}", token);
         }
         return isBlacklisted;
-    }
-
-    // 토큰 만료 여부 확인
-    private boolean isTokenExpired(Claims claims) {
-        return claims.getExpiration().before(new Date());
     }
 
     // JWT 토큰에서 Claims 추출
