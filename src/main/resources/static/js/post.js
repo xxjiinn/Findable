@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = getCookieValue('accessToken'); // 쿠키에서 Access Token 가져오기
     const postList = document.getElementById('post-list');
 
     if (!accessToken) {
@@ -11,7 +11,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // 게시물 로드 함수
     async function loadPosts(apiUrl) {
         try {
+            const accessToken = getCookieValue('accessToken'); // 쿠키에서 토큰 가져오기
+
             const response = await fetch(apiUrl, {
+                method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
@@ -28,16 +31,24 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const posts = await response.json();
-            postList.innerHTML = '';
-            posts.forEach(post => {
-                const li = document.createElement('li');
-                li.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p>`;
-                postList.appendChild(li);
-            });
+            renderPosts(posts); // 게시물 렌더링 함수 호출
         } catch (error) {
             console.error('Error loading posts:', error);
         }
     }
+
+// 쿠키에서 특정 쿠키 값을 가져오는 함수
+    function getCookieValue(name) {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [key, value] = cookie.trim().split('=');
+            if (key === name) {
+                return decodeURIComponent(value);
+            }
+        }
+        return null;
+    }
+
 
     // 모든 게시물 조회
     document.getElementById('all-posts-btn').addEventListener('click', () => {

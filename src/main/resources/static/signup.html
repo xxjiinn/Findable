@@ -3,23 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="signup.css">
 </head>
 <body>
-<h1>Sign Up</h1>
-
-<form id="signup-form">
-    <input type="text" id="name" name="name" placeholder="Name" required>
-    <input type="email" id="email" name="email" placeholder="Email" required>
-    <input type="password" id="password" name="password" placeholder="Password" required>
-    <button type="submit">Sign Up</button>
-</form>
-
-<br>
-
-<button onclick="location.href='/login.html'">Already have an account? Log in here</button>
-
-<script src="/js/signup.js"></script>
+<div class="container">
+    <h1>회원가입</h1>
+    <form id="signupForm">
+        <div class="form-group">
+            <label for="name">이름</label>
+            <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
+        </div>
+        <div class="form-group">
+            <label for="email">이메일</label>
+            <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required>
+        </div>
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+        </div>
+        <button type="submit" class="btn">회원가입</button>
+    </form>
+    <div id="message" class="message"></div>
+</div>
+<script src="signup.js"></script>
 </body>
 </html>

@@ -73,15 +73,17 @@ public class UserController {
     }
 
 
-    // 쿠키 추가 유틸리티 메서드
+    // 쿠키 추가 메서드 수정
     private void addTokenToCookie(HttpServletResponse response, String name, String token, boolean httpOnly) {
         Cookie cookie = new Cookie(name, token);
-        cookie.setHttpOnly(httpOnly);
-        cookie.setSecure(true); // HTTPS에서만 작동
-        cookie.setPath("/");
+        cookie.setHttpOnly(httpOnly); // HttpOnly 속성 설정
+        cookie.setSecure(true); // HTTPS에서만 작동 (로컬 환경 테스트 시 false로 설정 필요)
+        cookie.setPath("/"); // 모든 경로에서 쿠키 사용 가능
         cookie.setMaxAge(7 * 24 * 60 * 60); // 7일 유효
+        cookie.setDomain("localhost"); // 도메인 지정 (로컬 개발 시 필요)
         response.addCookie(cookie);
     }
+
 
 
 

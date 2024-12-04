@@ -30,10 +30,10 @@ public class JwtTokenProvider {
     }
 
     @Value("${jwt.access-token-validity}")
-    private long accessTokenValidity; // Access Token 유효 시간 (ms)
+    private long accessTokenValidity;
 
     @Value("${jwt.refresh-token-validity}")
-    private long refreshTokenValidity; // Refresh Token 유효 시간 (ms)
+    private long refreshTokenValidity;
 
     // Access Token 생성
     public String generateAccessToken(String username) {
@@ -45,77 +45,56 @@ public class JwtTokenProvider {
         return generateToken(username, refreshTokenValidity);
     }
 
-    // 공통 토큰 생성 메서드
     private String generateToken(String username, long validity) {
-        try {
-            Date now = new Date();
-            Date expiryDate = new Date(now.getTime() + validity);
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + validity);
 
-            return Jwts.builder()
-                    .setSubject(username)
-                    .setIssuedAt(now)
-                    .setExpiration(expiryDate)
-                    .signWith(secretKey, SignatureAlgorithm.HS512)
-                    .compact();
-        } catch (Exception e) {
-            logger.error("❌ Error generating token for username: {}", username, e);
-            throw new RuntimeException("Failed to generate token");
-        }
-    }
-
-    // 토큰에서 사용자 이름 추출
-    public String getUsernameFromToken(String token) {
-        return getClaimsFromToken(token).getSubject();
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(secretKey, SignatureAlgorithm.HS512)
+                .compact();
     }
 
     // 토큰 검증
     public boolean validateToken(String token) {
         try {
-            if (StringUtils.hasText(token) && token.split("\\.").length == 3) { // 기본 구조 검사
-                Claims claims = getClaimsFromToken(token);
-                return !isTokenExpired(token) && !isTokenBlacklisted(token);
-            } else {
-                logger.warn("Token is not in the expected JWT format: {}", token);
-                return false;
-            }
+            Claims claims = getClaimsFromToken(token);
+            boolean isExpired = claims.getExpiration().before(new Date());
+            boolean isBlacklisted = isTokenBlacklisted(token);
+
+            if (isExpired) logger.warn("Token expired: {}", token);
+            if (isBlacklisted) logger.warn("Token is blacklisted: {}", token);
+
+            return !isExpired && !isBlacklisted;
         } catch (Exception e) {
-            logger.warn("Token validation failed: {}", e.getMessage());
+            logger.error("Token validation failed: {}", e.getMessage());
             return false;
         }
     }
 
-
-    // 토큰 만료 여부 확인 (Public 메서드로 수정)
-    public boolean isTokenExpired(String token) {
+    // 사용자 이름 추출 메서드 추가
+    public String getUsernameFromToken(String token) { // 추가된 부분
         try {
-            Claims claims = getClaimsFromToken(token);
-            return claims.getExpiration().before(new Date());
+            return getClaimsFromToken(token).getSubject();
         } catch (Exception e) {
-            logger.error("Error checking token expiration: {}", e.getMessage());
+            logger.error("Failed to extract username from token: {}", e.getMessage());
             throw new RuntimeException("Invalid JWT token");
         }
     }
 
-    // 토큰이 블랙리스트에 있는지 확인
+    // 블랙리스트 확인
     public boolean isTokenBlacklisted(String token) {
-        boolean isBlacklisted = blacklistedTokenRepo.findByToken(token).isPresent();
-        if (isBlacklisted) {
-            logger.info("Token is blacklisted: {}", token);
-        }
-        return isBlacklisted;
+        return blacklistedTokenRepo.findByToken(token).isPresent();
     }
 
-    // JWT 토큰에서 Claims 추출
+    // Claims 추출
     public Claims getClaimsFromToken(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            logger.error("Error parsing token: {}", e.getMessage());
-            throw new RuntimeException("Invalid JWT token");
-        }
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

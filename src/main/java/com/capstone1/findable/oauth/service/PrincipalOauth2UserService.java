@@ -4,9 +4,12 @@ import com.capstone1.findable.User.entity.Role;
 import com.capstone1.findable.User.entity.User;
 import com.capstone1.findable.User.repo.UserRepo;
 import com.capstone1.findable.jwt.JwtTokenProvider;
+import com.capstone1.findable.oauth.controller.AuthController;
 import com.capstone1.findable.oauth.entity.RefreshToken;
 import com.capstone1.findable.oauth.repo.RefreshTokenRepo;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -24,6 +27,9 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
     private final UserRepo userRepo;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepo refreshTokenRepo;
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -75,8 +81,8 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                     .build());
         }
 
-        System.out.println("🎟️ Access Token: " + accessToken);
-        System.out.println("🎫 Refresh Token: " + refreshTokenValue);
+        logger.info("🎟️ Access Token: " + accessToken);
+        logger.info("🎫 Refresh Token: " + refreshTokenValue);
 
         return new PrincipalDetails(user, oauth2User.getAttributes());
     }
