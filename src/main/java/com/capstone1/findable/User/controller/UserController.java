@@ -42,27 +42,27 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUser(@RequestBody UserDTO.LoginUserDTO loginDTO, HttpServletResponse response) {
-        logger.info("🔥 [LOGIN] Attempt with email: {}", loginDTO.getEmail());
-        if (loginDTO.getEmail() == null || loginDTO.getPassword() == null) {
-            logger.error("❌ [LOGIN] Missing required fields");
-            return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
-        }
-
-        try {
-            Map<String, String> tokens = userService.loginUser(loginDTO);
-
-            addTokenToCookie(response, "accessToken", tokens.get("accessToken"), false, false);
-            addTokenToCookie(response, "refreshToken", tokens.get("refreshToken"), true, true);
-
-            logger.info("✅ [LOGIN] Successful for email: {}", loginDTO.getEmail());
-            return ResponseEntity.ok(Map.of("message", "Login successful"));
-        } catch (IllegalArgumentException e) {
-            logger.error("⚠️ [LOGIN] Failed for email: {}", loginDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
-        }
-    }
+//    @PostMapping("/login")
+//    public ResponseEntity<Map<String, String>> loginUser(@RequestBody UserDTO.LoginUserDTO loginDTO, HttpServletResponse response) {
+//        logger.info("🔥 [LOGIN] Attempt with email: {}", loginDTO.getEmail());
+//        if (loginDTO.getEmail() == null || loginDTO.getPassword() == null) {
+//            logger.error("❌ [LOGIN] Missing required fields");
+//            return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
+//        }
+//
+//        try {
+//            Map<String, String> tokens = userService.loginUser(loginDTO);
+//
+//            addTokenToCookie(response, "accessToken", tokens.get("accessToken"), false, false);
+//            addTokenToCookie(response, "refreshToken", tokens.get("refreshToken"), true, true);
+//
+//            logger.info("✅ [LOGIN] Successful for email: {}", loginDTO.getEmail());
+//            return ResponseEntity.ok(Map.of("message", "Login successful"));
+//        } catch (IllegalArgumentException e) {
+//            logger.error("⚠️ [LOGIN] Failed for email: {}", loginDTO.getEmail());
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
+//        }
+//    }
 
     private void addTokenToCookie(HttpServletResponse response, String name, String token, boolean httpOnly, boolean secure) {
         Cookie cookie = new Cookie(name, token);

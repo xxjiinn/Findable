@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -34,19 +32,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String accessToken = extractTokenFromHeader(request);
 
-            if (StringUtils.hasText(accessToken) && jwtTokenProvider.validateToken(accessToken)) {
+            if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {
                 authenticateUser(accessToken, request);
             } else {
                 String refreshToken = extractTokenFromCookies(request, "refreshToken");
-                if (StringUtils.hasText(refreshToken) && jwtTokenProvider.validateToken(refreshToken)) {
+                if (refreshToken != null && jwtTokenProvider.validateToken(refreshToken)) {
                     String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
                     String newAccessToken = jwtTokenProvider.generateAccessToken(username);
-                    response.setHeader("Authorization", "Bearer " + newAccessToken);
+
+                    response.setHeader("Authorization", "Bearer " + newAccessToken); // Access Token 명확히 전달
                     authenticateUser(newAccessToken, request);
                 }
             }
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             logger.error("Authentication error: {}", e.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+        } catch (Exception e) {
+            logger.error("Unexpected error during authentication: {}", e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error");
         }
 
         chain.doFilter(request, response);
@@ -65,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String extractTokenFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
         return null;
@@ -78,8 +81,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

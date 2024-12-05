@@ -1,6 +1,5 @@
 package com.capstone1.findable.jwt;
 
-import com.capstone1.findable.oauth.repo.BlacklistedTokenRepo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -20,8 +18,6 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
-    private final BlacklistedTokenRepo blacklistedTokenRepo;
-
     private SecretKey secretKey;
 
     @Value("${jwt.secret-key}")
@@ -45,6 +41,7 @@ public class JwtTokenProvider {
         return generateToken(username, refreshTokenValidity);
     }
 
+    // 토큰 생성 공통 로직
     private String generateToken(String username, long validity) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + validity);
@@ -61,32 +58,25 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Claims claims = getClaimsFromToken(token);
-            boolean isExpired = claims.getExpiration().before(new Date());
-            boolean isBlacklisted = isTokenBlacklisted(token);
-
-            if (isExpired) logger.warn("Token expired: {}", token);
-            if (isBlacklisted) logger.warn("Token is blacklisted: {}", token);
-
-            return !isExpired && !isBlacklisted;
+            if (claims.getExpiration().before(new Date())) {
+                logger.warn("Token expired: {}", token);
+                return false;
+            }
+            return true;
         } catch (Exception e) {
             logger.error("Token validation failed: {}", e.getMessage());
             return false;
         }
     }
 
-    // 사용자 이름 추출 메서드 추가
-    public String getUsernameFromToken(String token) { // 추가된 부분
+    // 토큰에서 사용자 이름 추출
+    public String getUsernameFromToken(String token) {
         try {
             return getClaimsFromToken(token).getSubject();
         } catch (Exception e) {
             logger.error("Failed to extract username from token: {}", e.getMessage());
             throw new RuntimeException("Invalid JWT token");
         }
-    }
-
-    // 블랙리스트 확인
-    public boolean isTokenBlacklisted(String token) {
-        return blacklistedTokenRepo.findByToken(token).isPresent();
     }
 
     // Claims 추출

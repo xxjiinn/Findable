@@ -13,7 +13,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     }
 
     try {
-        const response = await fetch("/api/user/login", {
+        const response = await fetch("/api/auth/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -24,13 +24,18 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         if (response.ok) {
             const data = await response.json();
 
-            // Access Token을 Local Storage에 저장
-            localStorage.setItem("accessToken", data.accessToken);
+            // 추가된 디버깅 로깅
+            console.log("Access Token:", data.accessToken);
+
+            if (data.accessToken) {
+                sessionStorage.setItem("accessToken", `Bearer ${data.accessToken}`);
+            } else {
+                console.error("Access Token is undefined");
+            }
 
             messageElement.textContent = "로그인 성공!";
             messageElement.classList.add("success");
 
-            // 성공 후 홈페이지로 이동
             setTimeout(() => {
                 window.location.href = "/home.html";
             }, 1000);
@@ -38,6 +43,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
             const errorData = await response.json();
             messageElement.textContent = errorData.message || "로그인에 실패했습니다.";
         }
+
     } catch (error) {
         messageElement.textContent = "네트워크 오류가 발생했습니다. 다시 시도해주세요.";
     }

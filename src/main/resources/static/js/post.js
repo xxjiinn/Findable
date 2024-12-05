@@ -7,12 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch and display posts
     async function fetchPosts(query = "") {
         try {
-            const token = document.cookie
-                .split("; ")
-                .find(row => row.startsWith("accessToken="))
-                ?.split("=")[1];
-
-            if (!token) {
+            const accessToken = sessionStorage.getItem("accessToken");
+            if (!accessToken) {
                 alert("로그인이 필요합니다.");
                 window.location.href = "/login.html";
                 return;
@@ -21,13 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch(`/api/post/posts${query ? `?query=${query}` : ""}`, {
                 method: "GET",
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: accessToken,
                 },
             });
 
             if (response.ok) {
                 const posts = await response.json();
                 renderPosts(posts);
+            } else if (response.status === 401) {
+                // Access Token 만료 시 갱신
+                await refreshAccessToken();
+                fetchPosts(query); // 재시도
             } else {
                 alert("게시물을 불러오는 데 실패했습니다.");
             }
@@ -64,10 +64,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Logout functionality
     logoutButton.addEventListener("click", () => {
-        document.cookie = "accessToken=; Max-Age=0; path=/;"; // Clear cookie
-        document.cookie = "refreshToken=; Max-Age=0; path=/;"; // Clear cookie
-        window.location.href = "/login.html";
+        fetch("/api/auth/logout", {
+            method: "POST",
+            credentials: "include", // HttpOnly 쿠키 포함
+        }).then(() => {
+            sessionStorage.removeItem("accessToken");
+            window.location.href = "/login.html";
+        }).catch(error => {
+            console.error("Error during logout:", error);
+        });
     });
+
+    // Access Token 갱신
+    async function refreshAccessToken() {
+        try {
+            const response = await fetch("/api/auth/refresh", {
+                method: "POST",
+                credentials: "include", // HttpOnly 쿠키 포함
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                sessionStorage.setItem("accessToken", `Bearer ${data.accessToken}`);
+            } else {
+                throw new Error("Access Token 갱신 실패");
+            }
+        } catch (error) {
+            alert("로그인이 필요합니다.");
+            window.location.href = "/login.html";
+        }
+    }
 
     // Initial fetch
     fetchPosts();
