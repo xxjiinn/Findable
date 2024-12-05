@@ -1,47 +1,77 @@
-// [수정 내용]
-// LocalStorage 사용을 제거하고, API 호출 시 쿠키를 자동으로 전송하도록 수정합니다.
+// 인증 상태 확인
+window.onload = async function () {
+    const welcomeMessage = document.getElementById("welcomeMessage");
+    const messageElement = document.getElementById("message");
+    console.log("home.js is loaded");
 
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("⚡ Home page loaded.");
-
-    // API 요청 시 쿠키를 자동으로 전송하기 때문에 별도의 토큰 검증 로직이 필요 없음
-    fetch("/api/user/me", {
-        method: "GET",
-        credentials: "include", // 쿠키 자동 전송
-    })
-        .then(response => {
-            if (!response.ok) {
-                console.warn("⚠️ Unauthorized user. Redirecting to login.");
-                window.location.href = "/login.html";
-                return;
-            }
-            return response.json();
-        })
-        .then(user => {
-            if (user) {
-                console.log("✅ User info:", user);
-            }
-        })
-        .catch(error => {
-            console.error("Error fetching user info:", error);
+    try {
+        // 사용자 정보 가져오기 (Access Token 사용)
+        const response = await fetch("/api/user/me", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${getCookie("accessToken")}`,
+            },
         });
 
-
-    // 로그아웃 버튼 핸들링
-    const logoutButton = document.getElementById("logout-btn");
-    logoutButton.addEventListener("click", async function () {
-        try {
-            const response = await fetch("/api/auth/logout", {
-                method: "POST",
-                credentials: "include", // 쿠키 포함
-            });
-
-            if (!response.ok) throw new Error("Failed to logout.");
-
-            alert("Logout successful.");
+        if (response.ok) {
+            const user = await response.json();
+            welcomeMessage.textContent = `환영합니다, ${user.name}님!`;
+        } else {
+            // 인증 실패 시 로그인 페이지로 이동
             window.location.href = "/login.html";
-        } catch (error) {
-            console.error("Logout failed:", error);
         }
-    });
+    } catch (error) {
+        messageElement.textContent = "인증에 실패했습니다. 다시 로그인해주세요.";
+        setTimeout(() => {
+            window.location.href = "/login.html";
+        }, 1500);
+    }
+};
+
+// 로그아웃 기능
+document.getElementById("logoutBtn").addEventListener("click", async function () {
+    const messageElement = document.getElementById("message");
+
+    try {
+        const response = await fetch("/api/auth/logout", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                refreshToken: getCookie("refreshToken"),
+                accessToken: getCookie("accessToken"),
+            }),
+        });
+
+        if (response.ok) {
+            // 쿠키 삭제
+            removeCookie("accessToken");
+            removeCookie("refreshToken");
+
+            // 로그아웃 후 로그인 페이지로 이동
+            window.location.href = "/login.html";
+        } else {
+            messageElement.textContent = "로그아웃에 실패했습니다. 다시 시도해주세요.";
+        }
+    } catch (error) {
+        messageElement.textContent = "네트워크 오류가 발생했습니다.";
+    }
 });
+
+// 게시물 페이지로 이동
+document.getElementById("goToPostsBtn").addEventListener("click", function () {
+    window.location.href = "/posts.html"; // 게시물 페이지로 이동
+});
+
+// 쿠키 값 가져오기
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+}
+
+// 쿠키 제거
+function removeCookie(name) {
+    document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+}

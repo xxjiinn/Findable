@@ -1,3 +1,4 @@
+// 회원가입 폼 제출 이벤트
 document.getElementById("signupForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -25,6 +26,9 @@ document.getElementById("signupForm").addEventListener("submit", async function 
         if (response.status === 201) {
             messageElement.textContent = "회원가입이 완료되었습니다!";
             messageElement.classList.add("success");
+            setTimeout(() => {
+                window.location.href = "/login.html"; // 로그인 페이지로 리다이렉트
+            }, 1000);
         } else {
             const errorData = await response.json();
             messageElement.textContent = errorData.message || "회원가입에 실패했습니다.";
@@ -32,4 +36,9 @@ document.getElementById("signupForm").addEventListener("submit", async function 
     } catch (error) {
         messageElement.textContent = "네트워크 오류가 발생했습니다. 다시 시도해주세요.";
     }
+});
+
+// 로그인 페이지로 이동 버튼 이벤트
+document.getElementById("loginPageButton").addEventListener("click", function () {
+    window.location.href = "/login.html"; // 로그인 페이지로 이동
 });

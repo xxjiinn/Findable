@@ -1,11 +1,8 @@
 package com.capstone1.findable.oauth.controller;
 
-import com.capstone1.findable.User.entity.User;
 import com.capstone1.findable.jwt.JwtTokenProvider;
 import com.capstone1.findable.oauth.dto.RefreshTokenRequest;
-import com.capstone1.findable.oauth.entity.BlacklistedToken;
 import com.capstone1.findable.oauth.entity.RefreshToken;
-import com.capstone1.findable.oauth.repo.BlacklistedTokenRepo;
 import com.capstone1.findable.oauth.repo.RefreshTokenRepo;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,7 +38,6 @@ public class AuthController {
         logger.info("Received refresh token request for Device ID: {}", deviceId);
 
         try {
-            // Refresh Token 검증
             Optional<RefreshToken> storedTokenOpt = refreshTokenRepo.findByTokenAndDeviceId(refreshToken, deviceId);
             if (storedTokenOpt.isEmpty() || !jwtTokenProvider.validateToken(refreshToken)) {
                 logger.warn("Invalid or expired refresh token");
@@ -50,18 +46,15 @@ public class AuthController {
 
             RefreshToken storedToken = storedTokenOpt.get();
             if (storedToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-                logger.warn("Refresh Token expired for Device ID: {}", deviceId);
                 refreshTokenRepo.delete(storedToken);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Unauthorized"));
             }
 
-            // Access Token 생성
             String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
             String newAccessToken = jwtTokenProvider.generateAccessToken(username);
 
-            // Refresh Token 재발급 조건 확인
             String newRefreshToken = refreshToken;
-            if (storedToken.getExpiryDate().minusDays(1).isBefore(LocalDateTime.now())) { // 만료 1일 전 새로 발급
+            if (storedToken.getExpiryDate().minusDays(1).isBefore(LocalDateTime.now())) {
                 newRefreshToken = jwtTokenProvider.generateRefreshToken(username);
                 refreshTokenRepo.save(RefreshToken.builder()
                         .token(newRefreshToken)
@@ -70,15 +63,13 @@ public class AuthController {
                         .expiryDate(LocalDateTime.now().plusWeeks(1))
                         .createdAt(LocalDateTime.now())
                         .build());
-                refreshTokenRepo.delete(storedToken); // 기존 토큰 삭제
+                refreshTokenRepo.delete(storedToken);
             }
 
-            logger.info("New tokens issued for user: {}", username);
             return ResponseEntity.ok(Map.of(
                     "accessToken", newAccessToken,
                     "refreshToken", newRefreshToken
             ));
-
         } catch (Exception e) {
             logger.error("Error during refresh token process: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal server error"));
@@ -90,32 +81,15 @@ public class AuthController {
         String refreshToken = request.getRefreshToken();
         String accessToken = request.getAccessToken();
 
-        logger.info("Received Logout Request with Refresh Token: {} and Access Token: {}", refreshToken, accessToken);
-
         try {
-            // 1. Refresh Token 검증 및 삭제
             Optional<RefreshToken> refreshTokenEntity = refreshTokenRepo.findByToken(refreshToken);
-            if (refreshTokenEntity.isPresent()) {
-                refreshTokenRepo.delete(refreshTokenEntity.get());
-                logger.info("Refresh Token deleted successfully.");
-            } else {
-                logger.warn("Invalid Refresh Token.");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid refresh token");
-            }
+            refreshTokenEntity.ifPresent(refreshTokenRepo::delete);
 
-            // 2. Access Token 블랙리스트 추가 (선택 사항)
-            if (jwtTokenProvider.validateToken(accessToken)) {
-                logger.info("Access Token will not be blacklisted for this implementation."); // 블랙리스트 최적화
-            }
-
-            // 3. 클라이언트 쿠키 제거
             removeCookie(response, "accessToken");
             removeCookie(response, "refreshToken");
 
-            logger.info("Logout successful.");
             return ResponseEntity.ok("Successfully logged out");
         } catch (Exception e) {
-            logger.error("Error during logout process: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to logout");
         }
     }
@@ -125,8 +99,7 @@ public class AuthController {
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setMaxAge(0); // 즉시 만료
+        cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
-
 }

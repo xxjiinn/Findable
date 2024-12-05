@@ -23,36 +23,51 @@ public class SecurityConfig {
 
     private final PrincipalOauth2UserService principalOauth2UserService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final CustomUserDetailsService customUserDetailsService; // 수정된 부분: CustomUserDetailsService 주입
-
+    private final CustomUserDetailsService customUserDetailsService;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService); // 수정된 부분: CustomUserDetailsService 추가
+        return new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService);
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);
+        http.csrf(AbstractHttpConfigurer::disable); // CSRF 비활성화
 
         // 인증 및 권한 설정
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/user/signup", "/api/user/login").permitAll() // 인증 불필요 API
-                .requestMatchers("/signup.html", "/login.html", "/home.html", "/css/**", "/js/**").permitAll() // 정적 리소스
-                .requestMatchers("/api/**").authenticated() // 게시물 관련 API 인증 필요
+                .requestMatchers(
+                        "/api/user/signup",
+                        "/api/auth/login",
+                        "/signup.html",
+                        "/login.html",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/"
+                ).permitAll() // 인증 불필요 경로
+                .requestMatchers("/api/**").authenticated() // API는 인증 필요
                 .anyRequest().authenticated() // 나머지 요청 인증 필요
         );
 
         // OAuth2 로그인 설정
         http.oauth2Login(oauth -> oauth
                 .loginPage("/login.html")
-                .successHandler(customAuthenticationSuccessHandler) // 성공 핸들러 등록
+                .successHandler(customAuthenticationSuccessHandler) // OAuth2 성공 핸들러
                 .userInfoEndpoint(userInfo -> userInfo.userService(principalOauth2UserService))
         );
 
         // JWT 필터 추가
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        // 예외 처리 설정
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Unauthorized: Invalid or missing tokens.");
+                })
+        );
 
         return http.build();
     }

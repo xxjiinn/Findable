@@ -1,18 +1,28 @@
-<div id="post-container">
-    <h1>Posts</h1>
-
-    <form id="post-form">
-        <input type="text" id="post-title" placeholder="Post Title" required>
-        <textarea id="post-content" placeholder="Post Content" required></textarea>
-        <button type="submit">Submit Post</button>
-    </form>
-
-    <!-- Buttons for filtering posts -->
-    <button id="all-posts-btn">All Posts</button>
-    <button id="my-posts-btn">My Posts</button>
-
-    <!-- Post List -->
-    <ul id="post-list" class="post-list"></ul>
-</div>
-
-<script src="/js/post.js"></script>"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시물 페이지</title>
+    <link rel="stylesheet" href="/css/post.css">
+</head>
+<body>
+<header>
+    <h1>게시물 페이지</h1>
+    <button id="logoutButton">로그아웃</button>
+</header>
+<main>
+    <section>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="게시물 검색...">
+            <button id="searchButton">검색</button>
+        </div>
+    </section>
+    <section>
+        <h2>게시물 목록</h2>
+        <ul id="postList"></ul>
+    </section>
+</main>
+<script src="/js/post.js"></script>
+</body>
+</html>

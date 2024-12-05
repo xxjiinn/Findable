@@ -1,104 +1,74 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const accessToken = getCookieValue('accessToken'); // 쿠키에서 Access Token 가져오기
-    const postList = document.getElementById('post-list');
+document.addEventListener("DOMContentLoaded", () => {
+    const postList = document.getElementById("postList");
+    const searchInput = document.getElementById("searchInput");
+    const searchButton = document.getElementById("searchButton");
+    const logoutButton = document.getElementById("logoutButton");
 
-    if (!accessToken) {
-        alert('You must log in to view posts.');
-        window.location.href = '/login.html';
-        return;
-    }
-
-    // 게시물 로드 함수
-    async function loadPosts(apiUrl) {
+    // Fetch and display posts
+    async function fetchPosts(query = "") {
         try {
-            const accessToken = getCookieValue('accessToken'); // 쿠키에서 토큰 가져오기
+            const token = document.cookie
+                .split("; ")
+                .find(row => row.startsWith("accessToken="))
+                ?.split("=")[1];
 
-            const response = await fetch(apiUrl, {
-                method: 'GET',
+            if (!token) {
+                alert("로그인이 필요합니다.");
+                window.location.href = "/login.html";
+                return;
+            }
+
+            const response = await fetch(`/api/post/posts${query ? `?query=${query}` : ""}`, {
+                method: "GET",
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
                 },
             });
 
-            if (response.status === 401) {
-                alert('Unauthorized access. Please log in.');
-                window.location.href = '/login.html';
-                return;
-            } else if (response.status === 403) {
-                alert('Forbidden: You do not have permission to view this content.');
-                return;
+            if (response.ok) {
+                const posts = await response.json();
+                renderPosts(posts);
+            } else {
+                alert("게시물을 불러오는 데 실패했습니다.");
             }
-
-            const posts = await response.json();
-            renderPosts(posts); // 게시물 렌더링 함수 호출
         } catch (error) {
-            console.error('Error loading posts:', error);
+            console.error("Error fetching posts:", error);
         }
     }
 
-// 쿠키에서 특정 쿠키 값을 가져오는 함수
-    function getCookieValue(name) {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            const [key, value] = cookie.trim().split('=');
-            if (key === name) {
-                return decodeURIComponent(value);
-            }
+    // Render posts in the list
+    function renderPosts(posts) {
+        postList.innerHTML = "";
+
+        if (posts.length === 0) {
+            postList.innerHTML = "<p>게시물이 없습니다.</p>";
+            return;
         }
-        return null;
-    }
 
-
-    // 모든 게시물 조회
-    document.getElementById('all-posts-btn').addEventListener('click', () => {
-        loadPosts('/api/post');
-    });
-
-    // 내 게시물 조회
-    document.getElementById('my-posts-btn').addEventListener('click', () => {
-        const userId = localStorage.getItem('userId');
-        loadPosts(`/api/post/myPosts/${userId}`);
-    });
-
-    // 초기 게시물 로드
-    loadPosts('/api/post');
-});
-
-
-document.getElementById('post-form').addEventListener('submit', async function (event) {
-    event.preventDefault();
-
-    const title = document.getElementById('post-title').value;
-    const content = document.getElementById('post-content').value;
-    const userId = localStorage.getItem('userId');
-
-    try {
-        const response = await fetch('/api/post/createPost', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ title, content, userId }),
+        posts.forEach(post => {
+            const listItem = document.createElement("li");
+            listItem.innerHTML = `
+                <h3>${post.title}</h3>
+                <p>${post.content}</p>
+                <a href="${post.url || "#"}">자세히 보기</a>
+            `;
+            postList.appendChild(listItem);
         });
-
-        if (response.status === 401) {
-            alert('Unauthorized: Please log in.');
-            window.location.href = '/login.html';
-            return;
-        } else if (response.status === 403) {
-            alert('Forbidden: You do not have permission to create posts.');
-            return;
-        } else if (!response.ok) {
-            throw new Error('Failed to create post');
-        }
-
-        alert('Post created successfully');
-        document.getElementById('post-form').reset();
-        loadPosts('/api/post');
-    } catch (error) {
-        console.error('Error creating post:', error);
-        alert('An error occurred while creating the post.');
     }
+
+    // Search functionality
+    searchButton.addEventListener("click", () => {
+        const query = searchInput.value.trim();
+        fetchPosts(query);
+    });
+
+    // Logout functionality
+    logoutButton.addEventListener("click", () => {
+        document.cookie = "accessToken=; Max-Age=0; path=/;"; // Clear cookie
+        document.cookie = "refreshToken=; Max-Age=0; path=/;"; // Clear cookie
+        window.location.href = "/login.html";
+    });
+
+    // Initial fetch
+    fetchPosts();
 });

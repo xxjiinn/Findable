@@ -24,7 +24,6 @@ public class UserController {
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    // 회원가입 엔드포인트
     @PostMapping("/signup")
     public ResponseEntity<Void> createUser(@Valid @RequestBody UserDTO.CreateUserDTO dto) {
         logger.info("🔥 [SIGNUP] Attempt with data: {}", dto);
@@ -43,10 +42,6 @@ public class UserController {
         }
     }
 
-    // 로그인 엔드포인트
-    // [수정 내용]
-// 로그인 API에서 토큰을 응답으로 전달하지 않고, HttpOnly 쿠키로 설정합니다.
-
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginUser(@RequestBody UserDTO.LoginUserDTO loginDTO, HttpServletResponse response) {
         logger.info("🔥 [LOGIN] Attempt with email: {}", loginDTO.getEmail());
@@ -56,50 +51,38 @@ public class UserController {
         }
 
         try {
-            Map<String, String> tokens = userService.loginUser(loginDTO); // AccessToken과 RefreshToken 받음
+            Map<String, String> tokens = userService.loginUser(loginDTO);
 
-            // Access Token을 쿠키에 추가
-            addTokenToCookie(response, "accessToken", tokens.get("accessToken"), false);
-
-            // Refresh Token을 HttpOnly 쿠키에 추가
-            addTokenToCookie(response, "refreshToken", tokens.get("refreshToken"), true);
+            addTokenToCookie(response, "accessToken", tokens.get("accessToken"), false, false);
+            addTokenToCookie(response, "refreshToken", tokens.get("refreshToken"), true, true);
 
             logger.info("✅ [LOGIN] Successful for email: {}", loginDTO.getEmail());
-            return ResponseEntity.ok(Map.of("message", "Login successful")); // 성공 메시지 반환
+            return ResponseEntity.ok(Map.of("message", "Login successful"));
         } catch (IllegalArgumentException e) {
             logger.error("⚠️ [LOGIN] Failed for email: {}", loginDTO.getEmail());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
         }
     }
 
-
-    // 쿠키 추가 메서드 수정
-    private void addTokenToCookie(HttpServletResponse response, String name, String token, boolean httpOnly) {
+    private void addTokenToCookie(HttpServletResponse response, String name, String token, boolean httpOnly, boolean secure) {
         Cookie cookie = new Cookie(name, token);
-        cookie.setHttpOnly(httpOnly); // HttpOnly 속성 설정
-        cookie.setSecure(true); // HTTPS에서만 작동 (로컬 환경 테스트 시 false로 설정 필요)
-        cookie.setPath("/"); // 모든 경로에서 쿠키 사용 가능
-        cookie.setMaxAge(7 * 24 * 60 * 60); // 7일 유효
-        cookie.setDomain("localhost"); // 도메인 지정 (로컬 개발 시 필요)
+        cookie.setHttpOnly(httpOnly);
+        cookie.setSecure(secure);
+        cookie.setPath("/");
+        cookie.setMaxAge(7 * 24 * 60 * 60);
         response.addCookie(cookie);
     }
 
-
-
-
-
-    // 현재 로그인된 사용자 정보 가져오기
     @GetMapping("/me")
     public ResponseEntity<UserDTO.ReadUserDTO> getCurrentUser(Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         return ResponseEntity.ok(UserDTO.ReadUserDTO.builder()
                 .id(userDetails.getId())
-                .name(userDetails.getUsername())   // 표시 이름
-                .email(userDetails.getEmail())    // 이메일 (고유 식별자)
+                .name(userDetails.getUsername())
+                .email(userDetails.getEmail())
                 .build());
     }
 
-    // 모든 사용자 조회
     @GetMapping("")
     public ResponseEntity<List<UserDTO.ReadUserDTO>> findAllUser() {
         logger.info("🔥 [FIND ALL USERS]");
@@ -108,7 +91,6 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    // ID로 사용자 조회
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO.ReadUserDTO> findUserById(@PathVariable Long id) {
         logger.info("🔥 [FIND USER BY ID] Fetching user with id: {}", id);
@@ -117,7 +99,6 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    // 사용자 정보 업데이트
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateUser(@PathVariable Long id, @Valid @RequestBody UserDTO.ReadUserDTO dto) {
         logger.info("🔥 [UPDATE USER] Updating user with id: {}", id);
@@ -126,7 +107,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    // 사용자 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         logger.info("🔥 [DELETE USER] Deleting user with id: {}", id);

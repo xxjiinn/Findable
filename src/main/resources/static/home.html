@@ -3,22 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>홈페이지</title>
+    <link rel="stylesheet" href="/css/home.css">
 </head>
 <body>
-
-<h1>Welcome to the Home Page</h1>
-
-<ul>
-    <li><a href="/posts.html">Posts</a></li>
-    <li><a href="/notices.html">Notices</a></li>
-    <li><a href="/faq.html">FAQ</a></li>
-</ul>
-
-<button id="logout-btn">Logout</button>
-
+<div class="container">
+    <header>
+        <h1>Findable</h1>
+        <button id="logoutBtn" class="btn">로그아웃</button>
+    </header>
+    <main>
+        <h2 id="welcomeMessage">환영합니다!</h2>
+        <p>이 페이지는 인증된 사용자만 접근할 수 있습니다.</p>
+        <!-- 게시물 페이지로 이동하는 버튼 추가 -->
+        <button id="goToPostsBtn" class="btn">게시물 페이지로 이동</button>
+    </main>
+    <div id="message" class="message"></div>
+</div>
 <script src="/js/home.js"></script>
-
 </body>
 </html>

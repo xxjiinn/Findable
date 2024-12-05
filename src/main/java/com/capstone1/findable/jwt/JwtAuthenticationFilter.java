@@ -32,34 +32,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         try {
-            // Step 1: Access Token 추출
             String accessToken = extractTokenFromHeader(request);
 
             if (StringUtils.hasText(accessToken) && jwtTokenProvider.validateToken(accessToken)) {
                 authenticateUser(accessToken, request);
-            } else if (StringUtils.hasText(accessToken) && !jwtTokenProvider.validateToken(accessToken)) {
-                logger.warn("Access Token expired or invalid. Attempting refresh...");
-
-                // Refresh Token 검증 및 Access Token 재발급
+            } else {
                 String refreshToken = extractTokenFromCookies(request, "refreshToken");
                 if (StringUtils.hasText(refreshToken) && jwtTokenProvider.validateToken(refreshToken)) {
                     String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
                     String newAccessToken = jwtTokenProvider.generateAccessToken(username);
-
-                    // 새로운 Access Token을 헤더에 추가
                     response.setHeader("Authorization", "Bearer " + newAccessToken);
                     authenticateUser(newAccessToken, request);
-
-                    logger.info("New Access Token issued for user: {}", username);
-                } else {
-                    logger.error("Refresh Token is invalid or expired");
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("Refresh Token is invalid or expired");
-                    return;
                 }
             }
         } catch (Exception e) {
-            logger.error("Authentication error: {}", e.getMessage(), e);
+            logger.error("Authentication error: {}", e.getMessage());
         }
 
         chain.doFilter(request, response);
@@ -79,7 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String extractTokenFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7); // "Bearer " 이후의 토큰 값 반환
+            return bearerToken.substring(7);
         }
         return null;
     }
@@ -87,7 +74,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void authenticateUser(String token, HttpServletRequest request) {
         Claims claims = jwtTokenProvider.getClaimsFromToken(token);
         String username = claims.getSubject();
-
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
         UsernamePasswordAuthenticationToken authentication =
@@ -95,6 +81,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        logger.info("User authenticated successfully: {}", username);
     }
 }
