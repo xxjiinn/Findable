@@ -44,7 +44,7 @@ public class AuthService {
         }
 
         // Access Token 생성
-        String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail());
+        String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail(), user.getId());
         logger.debug("🎟️ Access Token generated: {}", accessToken);
 
         // Refresh Token 생성 및 저장

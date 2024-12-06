@@ -34,23 +34,31 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> loginUser(@RequestBody UserDTO.LoginUserDTO loginDTO, HttpServletResponse response) {
         logger.info("🔥 [LOGIN] Attempt with email: {}", loginDTO.getEmail());
         try {
+            // 사용자 정보를 가져오기
+            UserDTO.ReadUserDTO user = userService.findByEmail(loginDTO.getEmail());
+
+            // Access Token에 userId 포함하여 생성
             Map<String, String> tokens = authService.login(loginDTO);
+            String accessTokenWithUserId = jwtTokenProvider.generateAccessToken(user.getEmail(), user.getId());
 
-            // 추가된 디버깅 로깅
-            logger.debug("🎁 Access Token: {}", tokens.get("accessToken"));
-            logger.debug("🎁 Refresh Token: {}", tokens.get("refreshToken"));
+            // Refresh Token 처리
+            String refreshToken = tokens.get("refreshToken");
 
-            addTokenToCookie(response, "accessToken", tokens.get("accessToken"), false, false);
-            addTokenToCookie(response, "refreshToken", tokens.get("refreshToken"), true, true);
+            // 쿠키에 토큰 추가
+            addTokenToCookie(response, "accessToken", accessTokenWithUserId, false, false);
+            addTokenToCookie(response, "refreshToken", refreshToken, true, true);
 
             logger.info("✅ [LOGIN] Successful for email: {}", loginDTO.getEmail());
-            return ResponseEntity.ok(Map.of("message", "Login successful", "accessToken", tokens.get("accessToken")));
+            return ResponseEntity.ok(Map.of(
+                    "message", "Login successful",
+                    "accessToken", accessTokenWithUserId,
+                    "userId", String.valueOf(user.getId()) // userId 반환
+            ));
         } catch (IllegalArgumentException e) {
             logger.error("⚠️ [LOGIN] Failed for email: {}", loginDTO.getEmail());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
         }
     }
-
 
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refreshAccessToken(@CookieValue("refreshToken") String refreshToken) {
@@ -68,8 +76,10 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Unauthorized"));
             }
 
+            // 사용자 정보에서 username과 userId를 추출하여 새로운 Access Token 생성
             String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
-            String newAccessToken = jwtTokenProvider.generateAccessToken(username);
+            Long userId = userService.findByEmail(username).getId();
+            String newAccessToken = jwtTokenProvider.generateAccessToken(username, userId);
 
             logger.info("New Access Token issued for user: {}", username);
             return ResponseEntity.ok(Map.of("accessToken", newAccessToken));

@@ -1,3 +1,4 @@
+/* 기존 스타일 유지 */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -12,13 +13,20 @@ header {
     text-align: center;
     position: sticky;
     top: 0;
+    display: flex; /* 버튼 정렬용 */
+    justify-content: space-between;
+    align-items: center;
 }
 
-header button {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    background-color: #f44336;
+/* 버튼 컨테이너 스타일 */
+.button-container {
+    display: flex;
+    gap: 10px; /* 버튼 간 간격 */
+}
+
+/* "게시물 생성하기" 버튼 스타일 (파란색) */
+#createPostButton {
+    background-color: #007BFF; /* 파란색 */
     color: white;
     border: none;
     padding: 10px 15px;
@@ -26,14 +34,38 @@ header button {
     cursor: pointer;
 }
 
-header button:hover {
-    background-color: #d32f2f;
+#createPostButton:hover {
+    background-color: #0056b3; /* 어두운 파란색 */
 }
 
-main {
-    margin: 20px;
+#editPostButton {
+    background-color: #f44336; /* 빨간색 */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
+#editPostButton:hover {
+    background-color: #d32f2f; /* 어두운 빨간색 */
+}
+
+#backToPosts {
+    background-color: #007BFF
+;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#backToPosts:hover {
+    background-color: #0056b3;
+}
+
+/* 검색창 스타일 */
 .search-container {
     display: flex;
     justify-content: center;
@@ -89,3 +121,4 @@ li a {
     text-decoration: none;
     font-weight: bold;
 }
+

@@ -30,8 +30,8 @@ public class Post {
         return Post.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .url(dto.getUrl()) // URL 필드 추가
-                .user(user) // 참조관계
+                .url(dto.getUrl())
+                .user(user)
                 .build();
     }
 }

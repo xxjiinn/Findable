@@ -31,18 +31,18 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-token-validity}")
     private long refreshTokenValidity;
 
-    // Access Token 생성
-    public String generateAccessToken(String username) {
-        return generateToken(username, accessTokenValidity);
+    // Access Token 생성 (userId 포함)
+    public String generateAccessToken(String username, Long userId) {
+        return generateToken(username, userId, accessTokenValidity);
     }
 
     // Refresh Token 생성
     public String generateRefreshToken(String username) {
-        return generateToken(username, refreshTokenValidity);
+        return generateToken(username, null, refreshTokenValidity); // userId는 포함하지 않음
     }
 
     // 토큰 생성 공통 로직
-    private String generateToken(String username, long validity) {
+    private String generateToken(String username, Long userId, long validity) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + validity);
 
@@ -50,6 +50,7 @@ public class JwtTokenProvider {
                 .setSubject(username)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
+                .claim("userId", userId) // userId를 클레임에 추가
                 .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
@@ -75,6 +76,17 @@ public class JwtTokenProvider {
             return getClaimsFromToken(token).getSubject();
         } catch (Exception e) {
             logger.error("Failed to extract username from token: {}", e.getMessage());
+            throw new RuntimeException("Invalid JWT token");
+        }
+    }
+
+    // 토큰에서 userId 추출
+    public Long getUserIdFromToken(String token) {
+        try {
+            Claims claims = getClaimsFromToken(token);
+            return claims.get("userId", Long.class);
+        } catch (Exception e) {
+            logger.error("Failed to extract userId from token: {}", e.getMessage());
             throw new RuntimeException("Invalid JWT token");
         }
     }

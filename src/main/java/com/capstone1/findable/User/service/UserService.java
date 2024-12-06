@@ -121,6 +121,18 @@ public class UserService {
         return users;
     }
 
+    public UserDTO.ReadUserDTO findByEmail(String email) {
+        logger.info("Fetching user by email: {}", email);
+
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        logger.info("User found: {}", user.getEmail());
+
+        // User를 UserDTO.ReadUserDTO로 변환하여 반환
+        return UserDTO.ReadUserDTO.toDTO(user);
+    }
+
     // ID로 유저 조회
     public UserDTO.ReadUserDTO findUserById(Long id) {
         logger.debug("☑️Fetching user by id: {}", id);

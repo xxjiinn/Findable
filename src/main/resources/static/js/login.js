@@ -3,7 +3,6 @@ document.getElementById("loginForm").addEventListener("submit", async function (
 
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
-
     const messageElement = document.getElementById("message");
     messageElement.textContent = "";
 
@@ -24,18 +23,18 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         if (response.ok) {
             const data = await response.json();
 
-            // 추가된 디버깅 로깅
-            console.log("Access Token:", data.accessToken);
-
+            // Access Token 저장
             if (data.accessToken) {
-                sessionStorage.setItem("accessToken", `Bearer ${data.accessToken}`);
+                sessionStorage.setItem("accessToken", `Bearer ${data.accessToken}`); // JWT 저장
             } else {
-                console.error("Access Token is undefined");
+                console.error("Access Token is missing in the response.");
+                throw new Error("로그인 응답에 Access Token이 없습니다.");
             }
 
             messageElement.textContent = "로그인 성공!";
             messageElement.classList.add("success");
 
+            // 홈 페이지로 리다이렉트
             setTimeout(() => {
                 window.location.href = "/home.html";
             }, 1000);
@@ -43,8 +42,8 @@ document.getElementById("loginForm").addEventListener("submit", async function (
             const errorData = await response.json();
             messageElement.textContent = errorData.message || "로그인에 실패했습니다.";
         }
-
     } catch (error) {
+        console.error("Error during login:", error);
         messageElement.textContent = "네트워크 오류가 발생했습니다. 다시 시도해주세요.";
     }
 });

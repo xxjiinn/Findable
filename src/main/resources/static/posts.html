@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>게시물 페이지</title>
+    <title>게시물 목록</title>
     <link rel="stylesheet" href="/css/post.css">
 </head>
 <body>
 <header>
-    <h1>게시물 페이지</h1>
-    <button id="logoutButton">로그아웃</button>
+    <h1>게시물 목록</h1>
+    <div class="button-container">
+        <button id="createPostButton">게시물 작성하기</button>
+        <button id="editPostButton">게시물 편집하기</button>
+    </div>
 </header>
 <main>
-    <section>
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="게시물 검색...">
-            <button id="searchButton">검색</button>
-        </div>
-    </section>
-    <section>
-        <h2>게시물 목록</h2>
-        <ul id="postList"></ul>
-    </section>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="검색어를 입력하세요">
+        <button id="searchButton">검색</button>
+    </div>
+    <ul id="postList">
+        <!-- 게시물이 여기 렌더링됩니다 -->
+    </ul>
+    <p id="errorMessage"></p>
 </main>
 <script src="/js/post.js"></script>
 </body>

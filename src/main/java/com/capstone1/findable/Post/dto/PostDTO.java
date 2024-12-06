@@ -1,19 +1,20 @@
 package com.capstone1.findable.Post.dto;
 
 import com.capstone1.findable.Post.entity.Post;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 public class PostDTO {
 
     @Getter
+    @Setter
     public static class CreatePostDTO {
         private String title;
         private String content;
-        private Long userId;
-        private String url; // URL 필드 추가
+        private String url;
+        // PostController 내부에서만 설정 가능
+        @Setter
+        private Long userId; // userId는 외부에서 설정하지 않음
+
     }
 
     @Getter
@@ -25,7 +26,7 @@ public class PostDTO {
         private String title;
         private String content;
         private Long userId;
-        private String url; // URL 필드 추가
+        private String url;
 
         public static ReadPostDTO toDTO(Post post) {
             return ReadPostDTO.builder()
@@ -33,7 +34,7 @@ public class PostDTO {
                     .title(post.getTitle())
                     .content(post.getContent())
                     .userId(post.getUser().getId())
-                    .url(post.getUrl()) // URL 필드 매핑
+                    .url(post.getUrl())
                     .build();
         }
     }

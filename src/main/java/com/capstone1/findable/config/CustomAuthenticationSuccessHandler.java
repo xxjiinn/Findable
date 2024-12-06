@@ -21,15 +21,17 @@ import java.time.LocalDateTime;
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final RefreshTokenRepo refreshTokenRepo; // 수정된 부분: RefreshTokenRepo 추가
+    private final RefreshTokenRepo refreshTokenRepo;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        User user = (User) authentication.getPrincipal(); // 수정된 부분: User 객체로 캐스팅
+        User user = (User) authentication.getPrincipal();
         String username = user.getUsername();
+        Long userId = user.getId(); // userId 추출
+
 
         // Access Token 생성
-        String accessToken = jwtTokenProvider.generateAccessToken(username);
+        String accessToken = jwtTokenProvider.generateAccessToken(username, userId);
 
         // Refresh Token 생성 및 저장
         String refreshToken = jwtTokenProvider.generateRefreshToken(username);
@@ -42,8 +44,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 .build());
 
         // 토큰을 클라이언트에 전달
-        addCookie(response, "accessToken", accessToken, false); // 수정된 부분: Access Token 쿠키에 추가
-        addCookie(response, "refreshToken", refreshToken, true); // 수정된 부분: Refresh Token 쿠키에 추가
+        addCookie(response, "accessToken", accessToken, false);
+        addCookie(response, "refreshToken", refreshToken, true);
 
         // 응답 설정
         response.setStatus(HttpServletResponse.SC_OK);

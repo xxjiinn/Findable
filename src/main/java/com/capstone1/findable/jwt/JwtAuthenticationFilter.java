@@ -37,10 +37,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             } else {
                 String refreshToken = extractTokenFromCookies(request, "refreshToken");
                 if (refreshToken != null && jwtTokenProvider.validateToken(refreshToken)) {
-                    String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
-                    String newAccessToken = jwtTokenProvider.generateAccessToken(username);
+                    Claims refreshTokenClaims = jwtTokenProvider.getClaimsFromToken(refreshToken);
+                    String username = refreshTokenClaims.getSubject();
+                    Long userId = refreshTokenClaims.get("userId", Long.class); // userId 추출
 
-                    response.setHeader("Authorization", "Bearer " + newAccessToken); // Access Token 명확히 전달
+                    // Access Token 생성 시 username과 userId 전달
+                    String newAccessToken = jwtTokenProvider.generateAccessToken(username, userId);
+
+                    response.setHeader("Authorization", "Bearer " + newAccessToken); // Access Token 전달
                     authenticateUser(newAccessToken, request);
                 }
             }
