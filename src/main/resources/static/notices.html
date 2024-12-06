@@ -3,30 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notices</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>공지사항</title>
+    <link rel="stylesheet" href="/css/notice.css">
 </head>
 <body>
-
-<h1>Notices</h1>
-<form id="notice-form">
-    <input type="text" id="notice-title" placeholder="Notice Title" required><br>
-    <textarea id="notice-content" placeholder="Notice Content" required></textarea><br>
-    <button type="submit">Submit Notice</button>
-</form>
-
-<ul id="notice-list"></ul>
-
-<br>
-
-<h3>Menu</h3>
-
-<ul>
-    <li><a href="/home.html">Home</a></li>
-    <li><a href="/posts.html">Posts</a></li>
-    <li><a href="/faq.html">FAQ</a></li>
-</ul>
-
-<script src="/js/user.js"></script>
+<header>
+    <h1>공지사항</h1>
+    <div>
+        <button id="createNoticeButton" class="create-button">공지사항 작성</button>
+        <button id="editNoticeButton" class="edit-button">공지사항 편집</button>
+        <button id="goHomeButton" class="home-button">홈페이지로 이동</button>
+    </div>
+</header>
+<main>
+    <div class="filter-container">
+        <label for="categoryFilter">카테고리:</label>
+        <select id="categoryFilter">
+            <option value="">전체</option>
+            <option value="GENERAL">일반 공지</option>
+            <option value="SYSTEM">시스템 점검</option>
+            <option value="EVENT">이벤트 공지</option>
+        </select>
+    </div>
+    <ul id="noticeList">
+        <!-- 공지사항 목록이 여기에 렌더링됩니다 -->
+    </ul>
+    <p id="errorMessage"></p>
+</main>
+<script src="/js/notice.js"></script>
 </body>
 </html>

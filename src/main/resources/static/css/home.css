@@ -62,3 +62,46 @@ button.btn {
 button.btn:hover {
     background-color: #45a049;
 }
+
+
+/* 공지사항 섹션 스타일 추가 */
+#noticeSection {
+    margin-top: 30px;
+    text-align: left;
+}
+
+#noticeSection h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+#noticeList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#noticeList li {
+    background: #fff;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#noticeList h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#noticeList p {
+    margin: 8px 0;
+    color: #555;
+    line-height: 1.4;
+}
+
+#noticeList small {
+    color: #888;
+    font-size: 12px;
+}

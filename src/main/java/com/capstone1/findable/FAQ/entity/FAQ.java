@@ -20,6 +20,9 @@ public class FAQ {
     private String question;
     private String answer;
 
+    @Enumerated(EnumType.STRING) // 카테고리 Enum 타입으로 처리
+    private FaqCategory category;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -28,6 +31,7 @@ public class FAQ {
         return FAQ.builder()
                 .question(dto.getQuestion())
                 .answer(dto.getAnswer())
+                .category(dto.getCategory()) // 카테고리 설정 추가
                 .user(user) // 참조관계
                 .build();
     }

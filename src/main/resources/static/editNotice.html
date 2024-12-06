@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 관리</title>
+    <link rel="stylesheet" href="/css/editNotice.css">
+</head>
+<body>
+<header>
+    <h1>공지사항 관리</h1>
+    <nav>
+        <button id="backToNotices">공지사항 목록</button>
+    </nav>
+</header>
+<main>
+    <ul id="editableNoticeList">
+        <!-- 공지사항이 동적으로 렌더링됩니다 -->
+    </ul>
+    <p id="errorMessage"></p>
+</main>
+
+<!-- 수정 모달 -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>공지사항 수정</h2>
+        <form id="editForm">
+            <label for="editTitle">제목:</label>
+            <input type="text" id="editTitle" name="editTitle" required>
+            <label for="editContent">내용:</label>
+            <textarea id="editContent" name="editContent" rows="5" required></textarea>
+            <label for="editCategory">카테고리:</label>
+            <select id="editCategory" name="editCategory" required>
+                <option value="GENERAL">일반 공지</option>
+                <option value="SYSTEM">시스템 점검</option>
+                <option value="EVENT">이벤트 공지</option>
+            </select>
+            <button type="submit" id="saveChangesButton">저장</button>
+        </form>
+    </div>
+</div>
+
+<footer>
+    <small>© 2024 Findable</small>
+</footer>
+<script src="/js/editNotice.js"></script>
+<script>
+    // 뒤로가기 버튼 동작
+    document.getElementById("backToNotices").addEventListener("click", () => {
+        window.location.href = "/notices.html";
+    });
+</script>
+</body>
+</html>

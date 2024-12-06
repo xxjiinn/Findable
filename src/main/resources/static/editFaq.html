@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ 관리</title>
+    <link rel="stylesheet" href="/css/editFaq.css">
+</head>
+<body>
+<header>
+    <h1>FAQ 관리</h1>
+    <button id="backToFaqButton">FAQ 목록</button>
+</header>
+<main>
+    <ul id="editableFaqList">
+        <!-- FAQ가 동적으로 렌더링됩니다 -->
+    </ul>
+    <p id="errorMessage"></p>
+</main>
+
+<!-- 수정 모달 -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>FAQ 수정</h2>
+        <form id="editForm">
+            <label for="editQuestion">질문:</label>
+            <input type="text" id="editQuestion" name="editQuestion" required>
+            <label for="editAnswer">답변:</label>
+            <textarea id="editAnswer" name="editAnswer" rows="5" required></textarea>
+            <label for="editCategory">카테고리:</label>
+            <select id="editCategory" name="editCategory" required>
+                <option value="GENERAL">일반</option>
+                <option value="TECHNICAL">기술</option>
+                <option value="OTHER">기타</option>
+            </select>
+            <button type="submit" id="saveChangesButton">저장</button>
+        </form>
+    </div>
+</div>
+<script src="/js/editFaq.js"></script>
+</body>
+</html>

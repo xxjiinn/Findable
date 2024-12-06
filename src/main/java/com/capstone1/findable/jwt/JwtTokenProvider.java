@@ -1,8 +1,7 @@
 package com.capstone1.findable.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.DecodingException;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -99,4 +98,28 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    // JwtTokenProvider.java
+    public Claims getClaims(String token) {
+        try {
+            return Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (IllegalArgumentException ex) {
+            logger.error("Token is null, empty, or only whitespace");
+        } catch (MalformedJwtException ex) {
+            logger.error("Invalid JWT token");
+        } catch (UnsupportedJwtException ex) {
+            logger.error("JWT token is unsupported");
+        } catch (ExpiredJwtException ex) {
+            logger.error("JWT token is expired");
+        } catch (SignatureException ex) {
+            logger.error("Invalid JWT signature");
+        } catch (DecodingException ex) {
+            logger.error("Token validation failed: {}", ex.getMessage()); // 추가된 예외 처리
+        }
+        return null;
+    }
+
 }
