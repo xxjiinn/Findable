@@ -1,4 +1,4 @@
-/* 기존 스타일 유지 */
+/* 공통 스타일 */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -13,9 +13,10 @@ header {
     text-align: center;
     position: sticky;
     top: 0;
-    display: flex; /* 버튼 정렬용 */
+    display: flex; /* 버튼 정렬 */
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* 버튼 컨테이너 스타일 */
@@ -24,52 +25,58 @@ header {
     gap: 10px; /* 버튼 간 간격 */
 }
 
-/* "게시물 생성하기" 버튼 스타일 (파란색) */
 #createPostButton {
-    background-color: #007BFF; /* 파란색 */
+    background-color: #007BFF;
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 10px 10px;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 100px;
+    text-align: center;
 }
-
 #createPostButton:hover {
-    background-color: #0056b3; /* 어두운 파란색 */
-}
-
-#editPostButton {
-    background-color: #f44336; /* 빨간색 */
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#editPostButton:hover {
-    background-color: #d32f2f; /* 어두운 빨간색 */
-}
-
-#backToPosts {
-    background-color: #007BFF
-;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#backToPosts:hover {
     background-color: #0056b3;
 }
 
-/* 검색창 스타일 */
+#editPostButton {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 100px;
+    text-align: center;
+}
+#editPostButton:hover {
+    background-color: #d32f2f;
+}
+
+
+#homeButton {
+    background-color: #FF9800; /* Bright orange to stand out */
+    color: white;
+    border: none;
+    padding: 10px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 100px;
+    text-align: center;
+}
+
+#homeButton:hover {
+    background-color: #FB8C00;
+}
+
 .search-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 15px;
 }
 
 .search-container input {
@@ -87,38 +94,67 @@ header {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .search-container button:hover {
     background-color: #45a049;
 }
 
+/* 게시물 리스트 컨테이너 */
 ul {
     list-style-type: none;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 중앙 정렬 */
+    margin: 0;
 }
 
+/* 게시물 카드 */
 li {
     background: #fff;
-    margin: 10px 0;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    max-width: 800px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
+li:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 게시물 제목 */
 li h3 {
     margin: 0;
-    font-size: 18px;
+    font-size: 20px;
+    color: #333;
+    font-weight: bold;
 }
 
+/* 게시물 내용 */
 li p {
-    margin: 5px 0;
+    margin: 10px 0;
     color: #555;
+    line-height: 1.6;
 }
 
+/* 링크 스타일 */
 li a {
     color: #4CAF50;
     text-decoration: none;
     font-weight: bold;
+    transition: color 0.3s ease;
 }
 
+li a:hover {
+    color: #388e3c;
+}

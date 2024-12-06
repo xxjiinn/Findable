@@ -1,5 +1,6 @@
 package com.capstone1.findable.User.service;
 
+import com.capstone1.findable.Exception.CustomConflictException;
 import com.capstone1.findable.User.dto.UserDTO;
 import com.capstone1.findable.User.entity.Role;
 import com.capstone1.findable.User.entity.User;
@@ -33,7 +34,7 @@ public class UserService {
         logger.info("☑️ [CREATE USER] Creating user with email: {}", dto.getEmail());
         if (userRepo.findByEmail(dto.getEmail()).isPresent()) {
             logger.error("❌ [CREATE USER] Email already exists: {}", dto.getEmail());
-            throw new IllegalArgumentException("Email already in use.");
+            throw new CustomConflictException("이미 존재하는 이메일입니다."); // 사용자 정의 예외 발생
         }
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword());

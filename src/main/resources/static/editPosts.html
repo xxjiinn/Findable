@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>게시물 관리</title>
-    <link rel="stylesheet" href="/css/post.css">
+    <link rel="stylesheet" href="/css/editPost.css">
 </head>
 <body>
 <header>
@@ -13,10 +13,24 @@
 </header>
 <main>
     <ul id="editablePostList">
-        <!-- 게시물이 여기 렌더링됩니다 -->
+
     </ul>
     <p id="errorMessage"></p>
 </main>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>게시물 수정</h2>
+        <form id="editForm">
+            <label for="editTitle">제목:</label>
+            <input type="text" id="editTitle" name="editTitle" required>
+            <label for="editContent">내용:</label>
+            <textarea id="editContent" name="editContent" rows="5" required></textarea>
+            <button type="submit" id="saveChangesButton">저장</button>
+        </form>
+    </div>
+</div>
 <script src="/js/editPosts.js"></script>
 </body>
 </html>

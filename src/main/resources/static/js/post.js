@@ -2,10 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const postList = document.getElementById("postList");
     const searchInput = document.getElementById("searchInput");
     const searchButton = document.getElementById("searchButton");
-    const logoutButton = document.getElementById("logoutButton");
     const createPostButton = document.getElementById("createPostButton");
-    const createMessage = document.getElementById("createMessage");
     const editPostButton = document.getElementById("editPostButton");
+    const homeButton = document.getElementById("homeButton"); // Added Home Button Reference
 
     // Fetch and display posts
     async function fetchPosts(query = "") {
@@ -17,14 +16,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const endpoint = query ? `/api/post/search?query=${encodeURIComponent(query)}` : `/api/post/posts`;
+            const endpoint = query
+                ? `/api/post/search?query=${encodeURIComponent(query)}`
+                : `/api/post/posts`;
             const response = await fetch(endpoint, {
                 method: "GET",
                 headers: {
                     Authorization: accessToken,
                 },
             });
-
 
             if (response.ok) {
                 const posts = await response.json();
@@ -49,15 +49,39 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        posts.forEach(post => {
+        posts.forEach((post) => {
             const listItem = document.createElement("li");
+
             listItem.innerHTML = `
-                <h3>${post.title}</h3>
-                <p>${post.content}</p>
-                <a href="${post.url || "#"}" target="_blank">자세히 보기</a>
+                <div>
+                    <h3>${post.title}</h3>
+                    <p>${post.content}</p>
+                    <a href="${post.url || "#"}" target="_blank">URL 이동</a>
+                </div>
             `;
+
             postList.appendChild(listItem);
         });
+    }
+
+    // Access Token 갱신
+    async function refreshAccessToken() {
+        try {
+            const response = await fetch("/api/auth/refresh", {
+                method: "POST",
+                credentials: "include",
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                sessionStorage.setItem("accessToken", `Bearer ${data.accessToken}`);
+            } else {
+                throw new Error("Access Token 갱신 실패");
+            }
+        } catch (error) {
+            alert("로그인이 필요합니다.");
+            window.location.href = "/login.html";
+        }
     }
 
     // Event listeners
@@ -80,38 +104,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    if (logoutButton) {
-        logoutButton.addEventListener("click", () => {
-            fetch("/api/auth/logout", {
-                method: "POST",
-                credentials: "include",
-            }).then(() => {
-                sessionStorage.removeItem("accessToken");
-                window.location.href = "/login.html";
-            }).catch(error => {
-                console.error("Error during logout:", error);
-            });
+    // Added Event Listener for Home Button
+    if (homeButton) {
+        homeButton.addEventListener("click", () => {
+            window.location.href = "/index.html"; // Redirect to the homepage
         });
-    }
-
-    // Access Token 갱신
-    async function refreshAccessToken() {
-        try {
-            const response = await fetch("/api/auth/refresh", {
-                method: "POST",
-                credentials: "include",
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                sessionStorage.setItem("accessToken", `Bearer ${data.accessToken}`);
-            } else {
-                throw new Error("Access Token 갱신 실패");
-            }
-        } catch (error) {
-            alert("로그인이 필요합니다.");
-            window.location.href = "/login.html";
-        }
     }
 
     // Initial fetch

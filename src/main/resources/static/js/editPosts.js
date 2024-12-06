@@ -1,6 +1,15 @@
+// editPosts.js
+
 document.addEventListener("DOMContentLoaded", () => {
     const postList = document.getElementById("editablePostList");
     const backToPostsButton = document.getElementById("backToPosts");
+    const editModal = document.getElementById("editModal");
+    const closeModalButton = document.querySelector(".close");
+    const editForm = document.getElementById("editForm");
+    const editTitleInput = document.getElementById("editTitle");
+    const editContentInput = document.getElementById("editContent");
+
+    let currentPostId = null;
 
     async function fetchEditablePosts() {
         try {
@@ -39,18 +48,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
         posts.forEach(post => {
             const listItem = document.createElement("li");
+
             listItem.innerHTML = `
+            <div>
                 <h3>${post.title}</h3>
                 <p>${post.content}</p>
-                <a href="${post.url || "#"}" target="_blank">자세히 보기</a>
-                <button class="editButton" data-id="${post.id}">수정</button>
+                <a href="${post.url || "#"}" target="_blank">URL 이동</a>
+            </div>
+            <div class="button-container">
+                <button class="editButton" data-id="${post.id}" data-title="${post.title}" data-content="${post.content}">수정</button>
                 <button class="deleteButton" data-id="${post.id}">삭제</button>
-            `;
+            </div>
+        `;
             postList.appendChild(listItem);
         });
 
         document.querySelectorAll(".editButton").forEach(button => {
-            button.addEventListener("click", handleEdit);
+            button.addEventListener("click", openEditModal);
         });
 
         document.querySelectorAll(".deleteButton").forEach(button => {
@@ -58,10 +72,24 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    async function handleEdit(event) {
-        const postId = event.target.dataset.id;
-        const newTitle = prompt("새로운 제목을 입력하세요:");
-        const newContent = prompt("새로운 내용을 입력하세요:");
+
+    function openEditModal(event) {
+        currentPostId = event.target.dataset.id;
+        editTitleInput.value = event.target.dataset.title;
+        editContentInput.value = event.target.dataset.content;
+        editModal.style.display = "block";
+    }
+
+    function closeEditModal() {
+        editModal.style.display = "none";
+        currentPostId = null;
+    }
+
+    async function saveChanges(event) {
+        event.preventDefault();
+
+        const newTitle = editTitleInput.value.trim();
+        const newContent = editContentInput.value.trim();
 
         if (!newTitle || !newContent) {
             alert("제목과 내용을 입력해야 합니다.");
@@ -69,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const response = await fetch(`/api/post/${postId}`, {
+            const response = await fetch(`/api/post/${currentPostId}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -80,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
                 alert("게시물이 성공적으로 수정되었습니다.");
+                closeEditModal();
                 fetchEditablePosts();
             } else {
                 alert("게시물 수정에 실패했습니다.");
@@ -114,11 +143,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    closeModalButton.addEventListener("click", closeEditModal);
+
     if (backToPostsButton) {
         backToPostsButton.addEventListener("click", () => {
             window.location.href = "/posts.html";
         });
     }
+
+    editForm.addEventListener("submit", saveChanges);
 
     fetchEditablePosts();
 });

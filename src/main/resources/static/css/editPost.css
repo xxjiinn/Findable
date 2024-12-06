@@ -1,0 +1,216 @@
+/* editPosts.css */
+
+/* 공통 스타일 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+}
+
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 버튼 스타일 */
+#backToPosts {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#backToPosts:hover {
+    background-color: #0056b3;
+}
+
+/* 게시물 리스트 컨테이너 */
+ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+}
+
+/* 게시물 카드 */
+li {
+    background: #fff;
+    margin: 20px 0;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    max-width: 800px;
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+li:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 게시물 제목 */
+li h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* 게시물 내용 */
+li p {
+    margin: 10px 0;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* 링크 스타일 */
+li a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+li a:hover {
+    color: #388e3c;
+}
+
+/* 버튼 컨테이너 */
+.button-container {
+    display: flex;
+    gap: 10px;
+}
+
+/* 수정 버튼 */
+.editButton {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.editButton:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+/* 삭제 버튼 */
+.deleteButton {
+    background-color: #f44336;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.deleteButton:hover {
+    background-color: #d32f2f;
+    transform: translateY(-2px);
+}
+
+/* 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* 모달 콘텐츠 */
+.modal-content {
+    background-color: #ffffff;
+    margin: 10% auto;
+    padding: 30px 40px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    animation: slide-down 0.3s ease-out;
+}
+
+/* 닫기 버튼 */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #555;
+}
+
+/* 입력 필드 */
+#editTitle,
+#editContent {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* 저장 버튼 */
+#saveChangesButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+#saveChangesButton:hover {
+    background-color: #45a049;
+}
+
+/* 모달 열리는 애니메이션 */
+@keyframes slide-down {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
