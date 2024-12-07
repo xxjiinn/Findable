@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
+
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -49,40 +49,11 @@ public class UserService {
     }
 
 
-//    public Map<String, String> loginUser(UserDTO.LoginUserDTO loginDTO) {
-//        logger.info("☑️ [LOGIN] Attempt for email: {}", loginDTO.getEmail());
-//
-//        // 이메일로 사용자 조회
-//        User user = userRepo.findByEmail(loginDTO.getEmail())
-//                .orElseThrow(() -> {
-//                    logger.error("⚠️ [LOGIN] Failed. Invalid email: {}", loginDTO.getEmail());
-//                    return new IllegalArgumentException("Invalid email or password");
-//                });
-//
-//        // 비밀번호 확인
-//        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-//            logger.error("⚠️ [LOGIN] Failed. Password mismatch for email: {}", loginDTO.getEmail());
-//            throw new IllegalArgumentException("Invalid email or password");
-//        }
-//
-//        // Access Token 생성
-//        String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail());
-//        logger.debug("🎟️ Access Token generated: {}", accessToken);
-//
-//        // Refresh Token 생성 및 저장
-//        String refreshTokenValue = saveOrUpdateRefreshToken(user);
-//        logger.debug("🔑 Refresh Token generated: {}", refreshTokenValue);
-//
-//        logger.info("✅ [LOGIN] Successful for email: {}", loginDTO.getEmail());
-//        return Map.of("accessToken", accessToken, "refreshToken", refreshTokenValue); // 두 토큰 반환
+//    public String getRefreshTokenForUser(String email) {
+//        User user = userRepo.findByEmail(email).orElseThrow(() ->
+//                new IllegalArgumentException("User not found for email: " + email));
+//        return saveOrUpdateRefreshToken(user);
 //    }
-
-
-    public String getRefreshTokenForUser(String email) {
-        User user = userRepo.findByEmail(email).orElseThrow(() ->
-                new IllegalArgumentException("User not found for email: " + email));
-        return saveOrUpdateRefreshToken(user);
-    }
 
 
     private String saveOrUpdateRefreshToken(User user) {

@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -28,34 +29,28 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable()); // CSRF 비활성화 (Authorization 헤더 사용)
-
-        // 인증 및 권한 설정
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                        "/api/user/signup",
-                        "/api/auth/login",
-                        "/api/auth/refresh",
-                        "/signup.html",
-                        "/login.html",
-                        "/css/**",
-                        "/js/**",
-                        "/images/**",
-                        "/"
-                ).permitAll() // 인증 불필요 경로
-                .anyRequest().authenticated() // 나머지 요청 인증 필요
-        );
-
-        // JWT 필터 추가
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
-        // 예외 처리 설정
-        http.exceptionHandling(ex -> ex
-                .authenticationEntryPoint((request, response, authException) -> {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("Unauthorized: Invalid or missing tokens.");
-                })
-        );
+        http.csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/api/user/signup",
+                                "/api/auth/login",
+                                "/api/auth/refresh",
+                                "/signup.html",
+                                "/login.html",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/",
+                                "/oauth2/**" // OAuth2 경로 허용
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login.html") // 사용자 정의 로그인 페이지
+                        .defaultSuccessUrl("/home.html", true) // 로그인 성공 후 이동 페이지
+                )
+                // 세션 관리 설정 제거 (Spring Security 6.1 이후)
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
 
         return http.build();
     }

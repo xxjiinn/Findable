@@ -78,7 +78,7 @@ public class UserController {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         return ResponseEntity.ok(UserDTO.ReadUserDTO.builder()
                 .id(userDetails.getId())
-                .name(userDetails.getUsername())
+                .name(userDetails.getName())
                 .email(userDetails.getEmail())
                 .build());
     }

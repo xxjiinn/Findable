@@ -18,7 +18,7 @@ window.onload = async function () {
 
         if (response.ok) {
             const user = await response.json();
-            welcomeMessage.textContent = `환영합니다, ${user.name}님!`;
+            welcomeMessage.textContent = `환영합니다, ${user.name}님!`; // 변경된 부분: username 표시
 
             // 공지사항 가져오기
             fetchNotices();
@@ -119,7 +119,6 @@ document.getElementById("goToNoticesBtn").addEventListener("click", function () 
 document.getElementById("goToFaqBtn").addEventListener("click", function () {
     window.location.href = "/faq.html";
 });
-
 
 // Access Token 갱신
 async function refreshAccessToken() {

@@ -29,12 +29,12 @@ public class User {
     private String username;
     private String password;
     private String email;
-    private boolean registered;  // 회원가입 여부 /
+    private boolean registered;  // 회원가입 여부
 
     @Enumerated(EnumType.STRING)
     private Role role;  // Enum 으로 역할 관리
 
-    private String provider;    // OAuth2 provider (예: Google)
+    private String provider;    // OAuth2 provider
     private String providerId;  // OAuth2 provider ID
     private LocalDateTime loginDate;
 
@@ -62,7 +62,7 @@ public class User {
                 .username(dto.getName())
                 .password(dto.getPassword())
                 .email(dto.getEmail())
-                .role(Role.ROLE_USER) // 기본 권한 설정 (사용자 등록 시 기본 USER 권한)
+                .role(Role.ROLE_USER)
                 .build();
     }
 }

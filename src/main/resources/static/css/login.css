@@ -66,3 +66,24 @@ button.btn:hover {
 .message.success {
     color: green;
 }
+
+
+.oauth-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.oauth-btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #db4437;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.oauth-btn:hover {
+    background-color: #c23321;
+}

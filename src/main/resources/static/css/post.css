@@ -13,7 +13,7 @@ header {
     text-align: center;
     position: sticky;
     top: 0;
-    display: flex; /* 버튼 정렬 */
+    display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -55,9 +55,23 @@ header {
     background-color: #d32f2f;
 }
 
+/*#manageTagsButton { !* 태그 관리 버튼 *!*/
+/*    background-color: #9C27B0; !* 보라색 *!*/
+/*    color: white;*/
+/*    border: none;*/
+/*    padding: 10px 10px;*/
+/*    border-radius: 5px;*/
+/*    cursor: pointer;*/
+/*    transition: background-color 0.3s ease;*/
+/*    min-width: 100px;*/
+/*    text-align: center;*/
+/*}*/
+/*#manageTagsButton:hover {*/
+/*    background-color: #7B1FA2; !* 보라색 hover 효과 *!*/
+/*}*/
 
 #homeButton {
-    background-color: #FF9800; /* Bright orange to stand out */
+    background-color: #FF9800;
     color: white;
     border: none;
     padding: 10px 10px;

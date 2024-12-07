@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch(endpoint, {
                 method: "GET",
                 headers: {
-                    Authorization: accessToken,
+                    Authorization: `Bearer ${accessToken}`, // Fixed the Bearer token format
                 },
             });
 
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 renderPosts(posts);
             } else if (response.status === 401) {
                 await refreshAccessToken();
-                fetchPosts(query); // 재시도
+                fetchPosts(query); // Retry
             } else {
                 alert("게시물을 불러오는 데 실패했습니다.");
             }
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
                 const data = await response.json();
-                sessionStorage.setItem("accessToken", `Bearer ${data.accessToken}`);
+                sessionStorage.setItem("accessToken", `Bearer ${data.accessToken}`); // Fixed the Bearer token format
             } else {
                 throw new Error("Access Token 갱신 실패");
             }

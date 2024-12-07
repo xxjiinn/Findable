@@ -30,6 +30,15 @@ public class UserDTO {
 
     @Getter
     @Builder
+    public static class ProfileDTO {
+        private String name;
+        private String email;
+        private LocalDateTime joinedAt;
+        private String role;
+    }
+
+    @Getter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ReadUserDTO {

@@ -26,6 +26,10 @@ public class CustomUserDetails implements UserDetails {
         return user.getEmail(); // User 엔티티의 이메일 반환
     }
 
+    public String getName() {
+        return user.getUsername(); // 여기서 `username` 필드를 반환
+    }
+
     public boolean isRegistered() {
         return user.isRegistered();  // User 엔티티에 등록 여부를 나타내는 필드
     }
