@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const editQuestion = document.getElementById("editQuestion");
     const editAnswer = document.getElementById("editAnswer");
     const editCategory = document.getElementById("editCategory");
-    const backToFaqButton = document.getElementById("backToFaqButton"); // FAQ 목록으로 이동 버튼
+    const backToFaqButton = document.getElementById("backToFaqButton");
     let currentFaqId = null;
 
     // 모달 초기 상태 설정
@@ -74,11 +74,11 @@ document.addEventListener("DOMContentLoaded", () => {
         editQuestion.value = event.target.dataset.question;
         editAnswer.value = event.target.dataset.answer;
         editCategory.value = event.target.dataset.category;
-        editModal.style.display = "block"; // 버튼 클릭 시 모달 표시
+        editModal.style.display = "block";
     }
 
     function closeEditModal() {
-        editModal.style.display = "none"; // 모달 닫기
+        editModal.style.display = "none";
         currentFaqId = null;
     }
 
@@ -131,6 +131,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
             });
 
+            if (response.status === 403) { // 권한 없음
+                alert("이 FAQ를 삭제할 권한이 없습니다.");
+                return;
+            }
+
             if (response.ok) {
                 alert("FAQ가 삭제되었습니다.");
                 fetchFaqs();
@@ -139,13 +144,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } catch (error) {
             console.error("Error deleting FAQ:", error);
+            alert(error.message || "FAQ 삭제 중 문제가 발생했습니다.");
         }
     }
 
     closeModalButton.addEventListener("click", closeEditModal);
     editForm.addEventListener("submit", saveChanges);
     backToFaqButton.addEventListener("click", () => {
-        window.location.href = "/faq.html"; // FAQ 목록 페이지로 이동
+        window.location.href = "/faq.html";
     });
 
     fetchFaqs();

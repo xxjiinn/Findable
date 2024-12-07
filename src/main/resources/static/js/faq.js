@@ -2,7 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const faqList = document.getElementById("faqList");
     const categoryFilter = document.getElementById("categoryFilter");
     const createFaqButton = document.getElementById("createFaqButton");
-    const manageFaqButton = document.getElementById("manageFaqButton"); // FAQ 관리 버튼
+    const manageFaqButton = document.getElementById("manageFaqButton");
+    const homeButton = document.getElementById("homeButton"); // 홈으로 이동 버튼
     const errorMessage = document.getElementById("errorMessage");
 
     async function fetchFaqs(category = "") {
@@ -74,6 +75,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // FAQ 관리 페이지 이동
     manageFaqButton.addEventListener("click", () => {
         window.location.href = "/editFaq.html";
+    });
+
+    // 홈으로 이동
+    homeButton.addEventListener("click", () => {
+        window.location.href = "/home.html"; // 홈페이지 경로로 이동
     });
 
     // 초기 FAQ 로드

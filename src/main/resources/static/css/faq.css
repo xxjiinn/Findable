@@ -111,3 +111,53 @@ li small {
     font-weight: bold;
     text-align: center;
 }
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+
+#createFaqButton {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#createFaqButton:hover {
+    background-color: #0056b3;
+}
+
+
+#manageFaqButton {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#manageFaqButton:hover {
+    background-color: #d32f2f;
+}
+
+#homeButton {
+    background-color: #FF9800;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#homeButton:hover {
+    background-color: #FB8C00;
+}

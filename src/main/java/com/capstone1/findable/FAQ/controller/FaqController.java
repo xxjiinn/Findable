@@ -70,12 +70,17 @@ public class FaqController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFaqInfo(@PathVariable Long id, HttpServletRequest request) {
-        String token = extractTokenFromRequest(request);
-        Long userId = jwtTokenProvider.getUserIdFromToken(token);
-        faqService.verifyFaqOwnership(id, userId); // FAQ 소유권 확인
-        faqService.deleteFaqInfo(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        try {
+            String token = extractTokenFromRequest(request);
+            Long userId = jwtTokenProvider.getUserIdFromToken(token);
+            faqService.verifyFaqOwnership(id, userId);
+            faqService.deleteFaqInfo(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null); // 권한 없음
+        }
     }
+
 
     private String extractTokenFromRequest(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
