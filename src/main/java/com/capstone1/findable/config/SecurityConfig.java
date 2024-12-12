@@ -41,7 +41,7 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/images/**",
                                 "/",
-                                "/oauth2/**" // OAuth2 경로 허용
+                                "/oauth2/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

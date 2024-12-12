@@ -31,7 +31,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
 
         // Access Token 생성
-        String accessToken = jwtTokenProvider.generateAccessToken(username, userId);
+        String accessToken = jwtTokenProvider.generateAccessToken(username, userId);//
 
         // Refresh Token 생성 및 저장
         String refreshToken = jwtTokenProvider.generateRefreshToken(username);
