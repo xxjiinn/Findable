@@ -57,12 +57,12 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<FAQ> faqs = new ArrayList<>();
 
-    public static User toEntity(UserDTO.CreateUserDTO dto) {
-        return User.builder()
-                .username(dto.getName())
-                .password(dto.getPassword())
-                .email(dto.getEmail())
-                .role(Role.ROLE_USER)
-                .build();
-    }
+//    public static User toEntity(UserDTO.CreateUserDTO dto) {
+//        return User.builder()
+//                .username(dto.getName())
+//                .password(dto.getPassword())
+//                .email(dto.getEmail())
+//                .role(Role.ROLE_USER)
+//                .build();
+//    }
 }

@@ -39,7 +39,7 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
         userRepo.save(User.builder()
-                .username(dto.getName())  // Username에 Name 저장
+                .username(dto.getName())  // Username 대신에 Name 저장
                 .password(encodedPassword)
                 .email(dto.getEmail())
                 .role(Role.ROLE_USER)
@@ -47,14 +47,6 @@ public class UserService {
                 .build());
         logger.info("✅ [CREATE USER] User created successfully with email: {}", dto.getEmail());
     }
-
-
-//    public String getRefreshTokenForUser(String email) {
-//        User user = userRepo.findByEmail(email).orElseThrow(() ->
-//                new IllegalArgumentException("User not found for email: " + email));
-//        return saveOrUpdateRefreshToken(user);
-//    }
-
 
     private String saveOrUpdateRefreshToken(User user) {
         Optional<RefreshToken> existingTokenOpt = refreshTokenRepo.findByUserId(user.getId());
