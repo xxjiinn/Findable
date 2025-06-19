@@ -54,8 +54,8 @@ class UserServiceTest {
         UserDTO.CreateUserDTO dto = UserDTO.CreateUserDTO.builder()
                 .name("Bob")
                 .email("bob@example.com")
-                .password("pwd")
-                .build();//
+//                .password("pwd")
+                .build();
 
         when(userRepo.findByEmail("bob@example.com"))
                 .thenReturn(Optional.of(new User()));
