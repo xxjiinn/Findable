@@ -55,7 +55,7 @@ class UserServiceTest {
                 .name("Bob")
                 .email("bob@example.com")
                 .password("pwd")
-                .build();
+                .build();//
 
         when(userRepo.findByEmail("bob@example.com"))
                 .thenReturn(Optional.of(new User()));
