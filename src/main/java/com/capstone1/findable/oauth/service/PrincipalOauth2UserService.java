@@ -3,10 +3,6 @@ package com.capstone1.findable.oauth.service;
 import com.capstone1.findable.User.entity.Role;
 import com.capstone1.findable.User.entity.User;
 import com.capstone1.findable.User.repo.UserRepo;
-import com.capstone1.findable.jwt.JwtTokenProvider;
-import com.capstone1.findable.oauth.controller.AuthController;
-import com.capstone1.findable.oauth.entity.RefreshToken;
-import com.capstone1.findable.oauth.repo.RefreshTokenRepo;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,37 +11,39 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * OAuth2 사용자 정보 로드 서비스
+ */
 @Service
 @RequiredArgsConstructor
 public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(PrincipalOauth2UserService.class);
+
     private final UserRepo userRepo;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final RefreshTokenRepo refreshTokenRepo;
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-
-
+    /** OAuth2 인증 후 사용자 정보 처리 */
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User oauth2User = super.loadUser(userRequest);
-
-        // 사용자 정보 파싱
-        String provider = userRequest.getClientRegistration().getClientId();
-        String providerId = oauth2User.getAttribute("sub");
+    @Transactional
+    public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
+        OAuth2User oauthUser = super.loadUser(request);
+        String provider = request.getClientRegistration().getRegistrationId();
+        String providerId = oauthUser.getAttribute("sub");
         String username = provider + "_" + providerId;
-        String email = oauth2User.getAttribute("email");
-        String name = oauth2User.getAttribute("name");
+        String email = oauthUser.getAttribute("email");
+        String name = oauthUser.getAttribute("name");
         if (name == null) {
-            name = oauth2User.getAttribute("given_name") + " " + oauth2User.getAttribute("family_name");
+            String given = oauthUser.getAttribute("given_name");
+            String family = oauthUser.getAttribute("family_name");
+            name = (given != null ? given : "") + " " + (family != null ? family : "");
         }
 
-        // 사용자 동기화
+        // 사용자 엔티티 생성 또는 업데이트
         User user = userRepo.findByUsername(username);
         if (user == null) {
             user = User.builder()
@@ -60,31 +58,11 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                     .createdAt(LocalDateTime.now())
                     .build();
             userRepo.save(user);
-        }
-
-        // Access Token 생성
-        String accessToken = jwtTokenProvider.generateAccessToken(user.getUsername(), user.getId());
-
-        // Refresh Token 생성 및 저장
-        String refreshTokenValue;
-        Optional<RefreshToken> existingTokenOpt = refreshTokenRepo.findByUserId(user.getId());
-        if (existingTokenOpt.isPresent() && existingTokenOpt.get().getExpiryDate().isAfter(LocalDateTime.now())) {
-            refreshTokenValue = existingTokenOpt.get().getToken();
+            log.info("🔑 New OAuth2 user registered: {}", username);
         } else {
-            refreshTokenValue = jwtTokenProvider.generateRefreshToken(user.getUsername());
-            refreshTokenRepo.save(RefreshToken.builder()
-                    .token(refreshTokenValue)
-                    .user(user)
-                    .deviceId("OAuth2_Login") // OAuth2 로그인을 위한 기본 디바이스 ID
-                    .expiryDate(LocalDateTime.now().plusWeeks(1))
-                    .createdAt(LocalDateTime.now())
-                    .build());
+            log.info("🔄 Existing OAuth2 user login: {}", username);
         }
 
-        logger.info("🎟️ Access Token: " + accessToken);
-        logger.info("🎫 Refresh Token: " + refreshTokenValue);
-
-        return new PrincipalDetails(user, oauth2User.getAttributes());
+        return new PrincipalDetails(user, oauthUser.getAttributes());
     }
-
 }

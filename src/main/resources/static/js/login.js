@@ -14,22 +14,22 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     try {
         const response = await fetch("/api/auth/login", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",    //  쿠키를 주고받기 위해 추가
             body: JSON.stringify({ email, password }),
         });
 
         if (response.ok) {
-            const data = await response.json();
+            // const data = await response.json();
 
             // Access Token 저장
-            if (data.accessToken) {
-                sessionStorage.setItem("accessToken", `Bearer ${data.accessToken}`); // JWT 저장
-            } else {
-                console.error("Access Token is missing in the response.");
-                throw new Error("로그인 응답에 Access Token이 없습니다.");
-            }
+            // if (data.accessToken) {
+            //     sessionStorage.setItem("accessToken", `Bearer ${data.accessToken}`); // JWT 저장
+            // } else {
+            //     console.error("Access Token is missing in the response.");
+            //     throw new Error("로그인 응답에 Access Token이 없습니다.");
+            // }
+            await response.json();
 
             messageElement.textContent = "로그인 성공!";
             messageElement.classList.add("success");

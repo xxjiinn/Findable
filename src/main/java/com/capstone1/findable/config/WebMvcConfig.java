@@ -16,6 +16,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         resolver.setPrefix("classpath:/templates/");
         resolver.setSuffix(".html");
         registry.viewResolver(resolver);
+
     }
 
     @Override
@@ -23,6 +24,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/");
         registry.addResourceHandler("/js/**").addResourceLocations("classpath:/static/js/");
         registry.addResourceHandler("/images/**").addResourceLocations("classpath:/static/images/");
+        registry.addResourceHandler("/.well-known/**").addResourceLocations("classpath:/static/.well-known/");
+        registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:/static/favicon.ico");
+
+
     }
 
 }

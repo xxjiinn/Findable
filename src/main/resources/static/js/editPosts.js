@@ -1,157 +1,128 @@
-// editPosts.js
+// 사용자 인증 확인
+async function fetchUserId() {
+    const res = await fetch('/api/user/me', { credentials: 'include' });
+    if (!res.ok) throw new Error('인증 필요');
+    const { id } = await res.json();
+    return id;
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-    const postList = document.getElementById("editablePostList");
-    const backToPostsButton = document.getElementById("backToPosts");
-    const editModal = document.getElementById("editModal");
-    const closeModalButton = document.querySelector(".close");
-    const editForm = document.getElementById("editForm");
-    const editTitleInput = document.getElementById("editTitle");
+    const postList         = document.getElementById("editablePostList");
+    const backToPostsBtn   = document.getElementById("backToPosts");
+    const editModal        = document.getElementById("editModal");
+    const closeModalBtn    = document.querySelector(".close");
+    const editForm         = document.getElementById("editForm");
+    const editTitleInput   = document.getElementById("editTitle");
     const editContentInput = document.getElementById("editContent");
-
     let currentPostId = null;
 
+    // 게시물 가져오기 및 렌더링
     async function fetchEditablePosts() {
         try {
-            const accessToken = sessionStorage.getItem("accessToken");
-            if (!accessToken) {
-                alert("로그인이 필요합니다.");
-                window.location.href = "/login.html";
-                return;
-            }
-
-            const response = await fetch("/api/post/posts", {
-                method: "GET",
-                headers: {
-                    Authorization: accessToken,
-                },
+            await fetchUserId();
+            const res = await fetch('/api/post/myPosts', {
+                method: 'GET',
+                credentials: 'include'
             });
-
-            if (response.ok) {
-                const posts = await response.json();
-                renderEditablePosts(posts);
-            } else {
-                alert("게시물을 불러오는 데 실패했습니다.");
-            }
-        } catch (error) {
-            console.error("Error fetching posts:", error);
+            if (res.status === 401) throw new Error();
+            const posts = await res.json();
+            renderEditablePosts(posts);
+        } catch {
+            alert('인증이 필요합니다.');
+            window.location.href = '/login.html';
         }
     }
 
     function renderEditablePosts(posts) {
-        postList.innerHTML = "";
-
+        postList.innerHTML = '';
         if (posts.length === 0) {
-            postList.innerHTML = "<p>게시물이 없습니다.</p>";
+            postList.innerHTML = '<p>수정 가능한 게시물이 없습니다.</p>';
             return;
         }
-
         posts.forEach(post => {
-            const listItem = document.createElement("li");
-
-            listItem.innerHTML = `
-            <div>
-                <h3>${post.title}</h3>
-                <p>${post.content}</p>
-                <a href="${post.url || "#"}" target="_blank">URL 이동</a>
-            </div>
-            <div class="button-container">
-                <button class="editButton" data-id="${post.id}" data-title="${post.title}" data-content="${post.content}">수정</button>
-                <button class="deleteButton" data-id="${post.id}">삭제</button>
-            </div>
-        `;
-            postList.appendChild(listItem);
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div>
+                    <h3>${post.title}</h3>
+                    <p>${post.content}</p>
+                    <a href="${post.url||'#'}" target="_blank">URL 이동</a>
+                </div>
+                <div class="button-container">
+                    <button class="editButton" data-id="${post.id}" data-title="${post.title}" data-content="${post.content}">수정</button>
+                    <button class="deleteButton" data-id="${post.id}">삭제</button>
+                </div>`;
+            postList.appendChild(li);
         });
-
-        document.querySelectorAll(".editButton").forEach(button => {
-            button.addEventListener("click", openEditModal);
-        });
-
-        document.querySelectorAll(".deleteButton").forEach(button => {
-            button.addEventListener("click", handleDelete);
-        });
+        document.querySelectorAll('.editButton').forEach(btn => btn.addEventListener('click', openEditModal));
+        document.querySelectorAll('.deleteButton').forEach(btn => btn.addEventListener('click', handleDelete));
     }
 
-
-    function openEditModal(event) {
-        currentPostId = event.target.dataset.id;
-        editTitleInput.value = event.target.dataset.title;
-        editContentInput.value = event.target.dataset.content;
-        editModal.style.display = "block";
+    function openEditModal(e) {
+        currentPostId = e.target.dataset.id;
+        editTitleInput.value   = e.target.dataset.title;
+        editContentInput.value = e.target.dataset.content;
+        editModal.style.display = 'block';
     }
-
     function closeEditModal() {
-        editModal.style.display = "none";
+        editModal.style.display = 'none';
         currentPostId = null;
     }
 
-    async function saveChanges(event) {
-        event.preventDefault();
-
-        const newTitle = editTitleInput.value.trim();
+    // 수정 저장
+    async function saveChanges(e) {
+        e.preventDefault();
+        const newTitle   = editTitleInput.value.trim();
         const newContent = editContentInput.value.trim();
-
         if (!newTitle || !newContent) {
-            alert("제목과 내용을 입력해야 합니다.");
+            alert('제목과 내용을 입력해야 합니다.');
             return;
         }
-
         try {
-            const response = await fetch(`/api/post/${currentPostId}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: sessionStorage.getItem("accessToken"),
-                },
-                body: JSON.stringify({ title: newTitle, content: newContent }),
+            await fetchUserId();
+            const res = await fetch(`/api/post/${currentPostId}`, {
+                method: 'PATCH',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: newTitle, content: newContent })
             });
-
-            if (response.ok) {
-                alert("게시물이 성공적으로 수정되었습니다.");
+            if (res.ok) {
+                alert('게시물이 성공적으로 수정되었습니다.');
                 closeEditModal();
                 fetchEditablePosts();
             } else {
-                alert("게시물 수정에 실패했습니다.");
+                alert('게시물 수정에 실패했습니다.');
             }
-        } catch (error) {
-            console.error("Error editing post:", error);
+        } catch {
+            alert('인증이 필요합니다.');
+            window.location.href = '/login.html';
         }
     }
 
-    async function handleDelete(event) {
-        const postId = event.target.dataset.id;
-
-        const confirmDelete = confirm("정말 삭제하시겠습니까?");
-        if (!confirmDelete) return;
-
+    // 삭제 처리
+    async function handleDelete(e) {
+        const postId = e.target.dataset.id;
+        if (!confirm('정말 삭제하시겠습니까?')) return;
         try {
-            const response = await fetch(`/api/post/${postId}`, {
-                method: "DELETE",
-                headers: {
-                    Authorization: sessionStorage.getItem("accessToken"),
-                },
+            await fetchUserId();
+            const res = await fetch(`/api/post/${postId}`, {
+                method: 'DELETE',
+                credentials: 'include'
             });
-
-            if (response.ok) {
-                alert("게시물이 삭제되었습니다.");
+            if (res.ok) {
+                alert('게시물이 삭제되었습니다.');
                 fetchEditablePosts();
             } else {
-                alert("게시물 삭제에 실패했습니다.");
+                alert('삭제에 실패했습니다.');
             }
-        } catch (error) {
-            console.error("Error deleting post:", error);
+        } catch {
+            alert('인증이 필요합니다.');
+            window.location.href = '/login.html';
         }
     }
 
-    closeModalButton.addEventListener("click", closeEditModal);
-
-    if (backToPostsButton) {
-        backToPostsButton.addEventListener("click", () => {
-            window.location.href = "/posts.html";
-        });
-    }
-
-    editForm.addEventListener("submit", saveChanges);
+    closeModalBtn.addEventListener('click', closeEditModal);
+    backToPostsBtn.addEventListener('click', () => window.location.href = '/posts.html');
+    editForm.addEventListener('submit', saveChanges);
 
     fetchEditablePosts();
 });

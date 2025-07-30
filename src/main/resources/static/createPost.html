@@ -35,11 +35,16 @@
     <small>© 2024 Findable</small>
 </footer>
 <script>
-    // 뒤로가기 버튼 동작
-    document.getElementById("backToPosts").addEventListener("click", () => {
-        window.location.href = "/posts.html";
+    document.addEventListener('DOMContentLoaded', () => {
+        // 뒤로가기 버튼 동작
+        document.getElementById("backToPosts").addEventListener("click", () => {
+            window.location.href = "/posts.html";
+        });
+        // createPost.js 실행
+        const script = document.createElement('script');
+        script.src = '/js/createPost.js';
+        document.body.appendChild(script);
     });
 </script>
-<script src="/js/createPost.js"></script>
 </body>
-</html>"
+</html>

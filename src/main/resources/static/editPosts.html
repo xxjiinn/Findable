@@ -12,9 +12,7 @@
     <button id="backToPosts">목록으로 돌아가기</button>
 </header>
 <main>
-    <ul id="editablePostList">
-
-    </ul>
+    <ul id="editablePostList"></ul>
     <p id="errorMessage"></p>
 </main>
 
@@ -31,6 +29,20 @@
         </form>
     </div>
 </div>
+
+<!-- 정적 스크립트 포함: DOM이 준비된 직후 외부 스크립트가 로드되어 즉시 실행됩니다. -->
 <script src="/js/editPosts.js"></script>
+
+<!--<script>-->
+<!--    document.addEventListener('DOMContentLoaded', () => {-->
+<!--        document.getElementById("backToPosts").addEventListener("click", () => {-->
+<!--            window.location.href = "/posts.html";-->
+<!--        });-->
+<!--        const script = document.createElement('script');-->
+<!--        script.src = '/js/editPosts.js';-->
+<!--        document.body.appendChild(script);-->
+<!--    });-->
+<!--</script>-->
 </body>
 </html>
+

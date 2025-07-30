@@ -19,10 +19,11 @@ public class RefreshToken {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User user;
 
-    @Column(length = 65535, nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String token; // 실제 리프레시 토큰 값
 
     @Column(nullable = false)
